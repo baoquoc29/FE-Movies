@@ -1,0 +1,108 @@
+.deposit-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #121212; /* Màu nền tối */
+  font-family: 'Arial', sans-serif;
+  color: #fff; /* Màu chữ sáng trên nền tối */
+}
+
+.deposit-card {
+  background: #1e1e1e; /* Nền thẻ tối */
+  border-radius: 12px;
+  padding: 30px;
+  width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Tăng độ đổ bóng cho thẻ */
+  text-align: center;
+}
+
+.deposit-card h2 {
+  font-size: 24px;
+  color: #fff; /* Màu chữ sáng */
+  margin-bottom: 20px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  color: #bbb; /* Màu chữ sáng nhẹ */
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444; /* Màu viền tối */
+  background-color: #333; /* Nền tối của input */
+  color: #fff; /* Màu chữ sáng trong input */
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #4CAF50; /* Viền sáng khi focus */
+}
+
+.payment-method {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.payment-method label {
+  font-size: 14px;
+  color: #bbb; /* Màu chữ sáng nhẹ */
+}
+
+.payment-options {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.payment-options label {
+  font-size: 16px;
+  color: #fff; /* Màu chữ sáng */
+}
+
+.error-message {
+  color: #e74c3c; /* Màu chữ đỏ cho lỗi */
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.action {
+  margin-top: 20px;
+}
+
+.deposit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.deposit-button:hover {
+  background-color: #45a049;
+}
+
+.deposit-button:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+}
+
+.result-message {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #fff; /* Màu chữ sáng cho thông báo kết quả */
+}

@@ -1,0 +1,46 @@
+.movie-loading-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 2rem;
+}
+
+.movie-skeleton {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.poster-placeholder {
+    width: 100%;
+    height: 220px;
+    background-color: #2a2a2a;
+}
+
+.text-placeholder {
+    height: 16px;
+    background-color: #2a2a2a;
+    margin: 10px;
+    border-radius: 4px;
+}
+
+.text-placeholder.short {
+    width: 60%;
+}
+
+.text-placeholder.long {
+    width: 80%;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
+}

@@ -1,0 +1,588 @@
+.movie-detail {
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  position: relative;
+
+  .movie-header-background {
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+
+    .backdrop-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(to bottom, rgba(26, 26, 26, 0), rgba(26, 26, 26, 1));
+    }
+  }
+
+  .movie-content {
+    position: relative;
+    margin-top: 30px;
+    z-index: 2;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 24px;
+
+    .ant-row {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    /* Cột thông tin phim (40%) - Giữ nguyên style gốc */
+    .movie-info-column {
+      flex: 0 0 40%;
+      max-width: 40%;
+      padding-right: 24px;
+
+      .movie-header {
+        .movie-poster {
+          width: 100%;
+          max-width: 180px;
+          height: 250px;
+          aspect-ratio: 2/3;
+          border-radius: 8px;
+          overflow: hidden;
+          margin-bottom: 24px;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .movie-info {
+          h1 {
+            font-size: 28px;
+            margin: 0 0 8px;
+            color: #fff;
+          }
+
+          h2 {
+            font-size: 16px;
+            color: #999;
+            margin: 0 0 24px;
+            font-weight: normal;
+          }
+        }
+
+        .movie-meta {
+          .rating-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+
+            .imdb-rating {
+              background-color: #f5c518;
+              color: #000;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-weight: bold;
+            }
+          }
+        }
+
+        .movie-details {
+          .detail-item {
+            margin-bottom: 16px;
+
+            // Thêm đoạn này để tất cả label và value cùng dòng
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px; // Khoảng cách giữa label và value
+
+            label {
+              // Thay đổi từ display: block thành inline
+              display: inline;
+              color: #ffffff;
+              margin-bottom: 0; // Bỏ margin-bottom
+              font-size: 14px;
+
+              // Thêm dấu hai chấm sau label
+              &::after {
+                content: ":";
+                margin-right: 4px;
+              }
+            }
+
+            span {
+              color: #bcb9b9;
+              font-size: 14px; // Nên để cùng cỡ chữ với label
+            }
+
+            .genre-tags {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 7px;
+
+              .ant-tag {
+                margin: 0;
+                padding: 4px 12px;
+                background-color: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: #fff;
+              }
+            }
+
+            .cast-list {
+              .cast-item {
+                margin-bottom: 12px;
+
+                .actor-name {
+                  display: block;
+                  color: #fff;
+                  font-weight: 500;
+                }
+
+                .actor-role {
+                  display: block;
+                  color: #999;
+                  font-size: 13px;
+                  margin-top: 2px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .section-label {
+      display: block;
+      color: #ffffff;
+      margin-top: 30px;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    .cast-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+
+      .cast-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        .actor-avatar {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          overflow: hidden;
+          margin-bottom: 8px;
+          border: 2px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
+
+          &:hover {
+            border-color: #f5c518;
+            transform: scale(1.05);
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .actor-info {
+          .actor-name {
+            display: block;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 2px;
+          }
+
+          .actor-role {
+            display: block;
+            color: #999;
+            font-size: 12px;
+            font-style: italic;
+          }
+        }
+      }
+    }
+    .movie-content-column {
+      flex: 0 0 80%;
+      max-width: 100%;
+      width: 100%;
+      padding-left: 24px;
+
+      .right-content {
+        border-radius: 12px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        height: 100%;
+
+        .action-buttons {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+
+          .ant-btn {
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 20px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transition: all 0.3s ease;
+
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.2);
+              transform: translateY(-2px);
+            }
+
+            &.ant-btn-primary {
+              background-color: #f5c518;
+              color: #000;
+              font-weight: 600;
+
+              &:hover {
+                background-color: darken(#f5c518, 10%);
+              }
+            }
+
+            .anticon {
+              font-size: 16px;
+            }
+
+            &.watch-now-btn {
+              height: 50px;
+              padding: 0 30px;
+              font-size: 18px;
+              font-weight: 700;
+              background: linear-gradient(45deg, #f5c518, #ff8c00);
+              box-shadow: 0 4px 15px rgba(245, 197, 24, 0.4);
+              border-radius: 25px;
+
+              .anticon {
+                font-size: 24px;
+                margin-right: 8px;
+              }
+
+              &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(245, 197, 24, 0.6);
+                background: linear-gradient(45deg, #ffd700, #ff8c00);
+              }
+            }
+          }
+
+          .ant-badge {
+            .ant-badge-count {
+              background-color: #f5c518;
+              color: #000;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Responsive - Giữ nguyên style gốc */
+  @media (max-width: 992px) {
+    .movie-content {
+      .ant-row {
+        flex-direction: column;
+      }
+
+      .movie-info-column,
+      .movie-content-column {
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding: 0 !important;
+      }
+
+      .movie-header {
+        align-items: center !important;
+        text-align: center;
+
+        .movie-poster {
+          margin: 0 auto 24px !important;
+        }
+      }
+
+      .action-buttons {
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.comments-section {
+  margin-top: 30px;
+  border-radius: 8px;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+
+  .comments-header {
+    margin-bottom: 20px;
+
+    h3 {
+      color: #fff;
+      font-size: 18px;
+      margin: 0;
+    }
+  }
+
+  .comment-list {
+    .comment-item {
+      padding: 15px 0;
+      max-width: 90%;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .comment-author {
+        color: #f5c518;
+        font-weight: 500;
+        margin-bottom: 5px;
+      }
+
+      .comment-time {
+        color: #999;
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      .comment-content {
+        color: #fff;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .comment-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+
+    .ant-btn {
+      color: #999;
+      padding: 0;
+
+      &:hover {
+        color: #f5c518;
+      }
+    }
+  }
+
+  .view-more-comments {
+    margin-top: 15px;
+    text-align: center;
+
+    .ant-btn {
+      color: #f5c518;
+      padding: 0;
+    }
+  }
+}
+
+.movie-tabs {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  
+  .tab-navigation {
+    .custom-tabs {
+      .ant-tabs-nav {
+        margin-bottom: 0;
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        
+        &::before {
+          border-bottom: none;
+        }
+        
+        .ant-tabs-tab {
+          padding: 12px 24px;
+          margin: 0 4px 0 0;
+          border-radius: 8px 8px 0 0;
+          border: none;
+          transition: all 0.3s ease;
+          display: inline-block;
+          white-space: nowrap;
+          flex-shrink: 0;
+         
+          
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+          }
+          
+          .tab-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #bcb9b9;
+          }
+          
+          &.ant-tabs-tab-active {
+
+            
+            .tab-label {
+              color: #fff;
+            }
+          }
+        }
+        
+        .ant-tabs-ink-bar {
+          display: none;
+        }
+      }
+      
+      .ant-tabs-content {
+        position: relative;
+        
+        .ant-tabs-tabpane {
+          position: absolute;
+          width: 100%;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          
+          &.ant-tabs-tabpane-active {
+            position: relative;
+            opacity: 1;
+          }
+        }
+        
+        .tab-content {
+          padding: 20px;
+          border-radius: 0 0 8px 8px;
+          margin-top: 1px;
+          
+          // Episode list styling
+          .episode-list {
+            display: grid;
+            max-width: 80%;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            
+            .episode-item {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding: 15px;
+              background-color: rgba(255, 255, 255, 0.05);
+              border-radius: 8px;
+              transition: all 0.3s ease;
+              cursor: pointer;
+              
+              &:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                transform: translateY(-3px);
+              }
+              
+              .episode-number {
+                font-size: 14px;
+              }
+            }
+          }
+          
+          // Gallery grid styling
+          .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            
+            .gallery-item {
+              border-radius: 8px;
+              overflow: hidden;
+              transition: transform 0.3s ease;
+              
+              &:hover {
+                transform: scale(1.05);
+              }
+              
+              img {
+                width: 100%;
+                height: auto;
+                display: block;
+              }
+            }
+          }
+          
+          // Cast grid styling
+          .cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 20px;
+            
+            .cast-card {
+              text-align: center;
+              
+              .cast-avatar {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                overflow: hidden;
+                margin: 0 auto 10px;
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                }
+              }
+              
+              .cast-name {
+                color: #fff;
+                font-size: 14px;
+              }
+            }
+          }
+          
+          // Recommendations styling
+          .recommendations {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            
+            .recommendation-item {
+              text-align: center;
+              
+              img {
+                width: 100%;
+                border-radius: 8px;
+                margin-bottom: 10px;
+              }
+              
+              .recommendation-title {
+                color: #fff;
+                font-size: 14px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -1,15 +1,32 @@
-@use "../../scss/breakpoint" as *;
+@use "../../scss/" as *;
 
 .movie-list {
+    .swiper {
+        padding: 20px 0;
+    }
+
     .swiper-slide {
         width: 15%;
+        height: auto;
 
-        @include tablet {
+        @include mobile {
             width: 30%;
         }
 
-        @include mobile {
-            width: 40%;
+        @include tablet {
+            width: 25%;
         }
     }
+}
+
+.movie-list-loading,
+.movie-list-error {
+    padding: 40px 0;
+    text-align: center;
+    font-size: 1.2rem;
+    color: $txt-color;
+}
+
+.movie-list-error {
+    color: #ff0000;
 }

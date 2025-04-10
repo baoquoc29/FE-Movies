@@ -113,7 +113,7 @@ const Header = () => {
                                         <div className="dropdown">
                                             <button className="dropbtn" onClick={toggleDropdown}>
                                                 <img src={userData.avatar || defaultAvatar} alt="Avatar" className="avatar"/>
-                                                {userData.username}
+                                                {userData.fullName}
                                             </button>
                                             <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`}>
                                                 <Link to="#" onClick={toggleChangePasswordModal} style={{ display: 'flex', alignItems: 'center' }}>

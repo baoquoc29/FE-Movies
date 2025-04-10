@@ -36,7 +36,7 @@
 .nav-item {
     position: relative;
     font-size: 16px;
-    font-weight: 300;
+    font-weight: 100;
     transition: all 0.3s ease;
 
     &.active {
@@ -267,12 +267,12 @@
 
         input {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.6rem;
             border-radius: 4px;
             border: 1px solid #333;
             background-color: #222;
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: border-color 0.3s ease;
 
             &:focus {
@@ -283,7 +283,101 @@
             &::placeholder {
                 color: #666;
             }
+            
+            &.date-input {
+                color-scheme: dark;
+                cursor: pointer;
+                
+                &::-webkit-calendar-picker-indicator {
+                    filter: invert(1);
+                    opacity: 0.7;
+                    cursor: pointer;
+                    
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
         }
+        
+        select {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #222;
+            color: #fff;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 0.8rem;
+            padding-right: 2.2rem;
+            
+            &:focus {
+                outline: none;
+                border-color: $main-color;
+            }
+            
+            &.gender-select {
+                width: 100%;
+                max-width: 150px;
+            }
+        }
+
+        .gender-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+
+            .gender-option {
+                flex: 1;
+                position: relative;
+                cursor: pointer;
+
+                input[type="radio"] {
+                    position: absolute;
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+
+                    &:checked + .gender-label {
+                        background-color: $main-color;
+                        border-color: $main-color;
+                        color: #fff;
+                    }
+                }
+
+                .gender-label {
+                    display: block;
+                    padding: 0.8rem;
+                    text-align: center;
+                    background-color: #222;
+                    border: 1px solid #333;
+                    border-radius: 4px;
+                    color: #ccc;
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        background-color: #2a2a2a;
+                        border-color: $main-color;
+                    }
+                }
+            }
+        }
+    }
+
+    &__error {
+        background-color: rgba(255, 77, 79, 0.1);
+        border: 1px solid rgba(255, 77, 79, 0.2);
+        color: #ff4d4f;
+        padding: 0.8rem;
+        border-radius: 4px;
+        margin-bottom: 1.2rem;
+        font-size: 0.9rem;
+        text-align: center;
     }
 
     &__options {
@@ -330,13 +424,13 @@
     &__register {
         margin-top: 1.5rem;
         text-align: center;
-        font-size: 0.9rem;
+        font-size: 0.4rem;
         color: #ccc;
 
         a {
             color: $main-color;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 200;
             transition: color 0.3s ease;
 
             &:hover {

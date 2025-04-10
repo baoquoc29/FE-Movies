@@ -12,8 +12,8 @@ export const loginUser = (username, password) => async (dispatch) => {
         const res = await userService.login(username, password);
         console.log(res);
         if (res.data && res.data.accessToken) {
-            const { accessToken, username } = res.data;  // Direct destructuring
-            const userDetails = { username };
+            const { accessToken, username,fullName } = res.data;  // Direct destructuring
+            const userDetails = { username,fullName };
             console.log(userDetails);
             localStorage.setItem(TOKEN, accessToken);
             localStorage.setItem(USER_LOGIN, JSON.stringify(userDetails));
@@ -46,6 +46,24 @@ export const changePassword = (current, newPassword,confirmPassword) => async (d
             return res.data;
         } else {
             console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error; // Truyền lỗi cho phần gọi useEffect
+    }
+};
+export const register = (username,password,fullName,email,gender,dateOfBirth) => async (dispatch) => {
+    try {
+        const res = await userService.register(username,password,fullName,email,gender,dateOfBirth);
+
+        if (res && res.data) {
+            dispatch({
+                type: "Register",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
             throw new Error('Dữ liệu không hợp lệ');
         }
     } catch (error) {

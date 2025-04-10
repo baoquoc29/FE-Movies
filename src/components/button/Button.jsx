@@ -8,6 +8,15 @@ const Button = props => {
         <button
             className={`btn ${props.className}`}
             onClick={props.onClick ? () => props.onClick() : null}
+            style={{
+                padding: '10px 20px',
+                backgroundColor: '#e50914',
+                border: 'none',
+                borderRadius: '5px',
+                color: 'white',
+                fontSize: '16px',
+                cursor: 'pointer'
+            }}
         >
             {props.children}
         </button>

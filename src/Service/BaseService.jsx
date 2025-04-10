@@ -34,22 +34,31 @@ export class baseService {
         return Axios(config).then(response => response.data).catch(error => { throw error });
     }
 
-    get = (url) => {
+    get = (url, useToken = true) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+        };
 
-        const token = localStorage.getItem(TOKEN);
-        console.log(token)
+        if (useToken) {
+            const token = localStorage.getItem(TOKEN);
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
         const config = {
             url: `${DOMAIN}/${url}`,
             method: 'GET',
-            headers:{
-                'Authorization':`Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
-            }
+            headers
         };
-        return Axios(config).then(response => response.data).catch(error => { throw error });
-    }
+
+        return Axios(config)
+            .then(response => response.data)
+            .catch(error => { throw error });
+    };
+
 
     delete = (url) => {
         const token = localStorage.getItem(TOKEN);

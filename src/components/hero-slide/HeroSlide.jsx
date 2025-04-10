@@ -3,30 +3,33 @@ import SwiperCore, { Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Button, { OutlineButton } from '../button/Button';
 import Modal, { ModalContent } from '../modal/Modal';
-import tmdbApi, { category, movieType } from '../../api/tmdbApi';
-import apiConfig from '../../api/apiConfig';
+import { useNavigate } from 'react-router-dom';
 import './hero-slide.scss';
-import { useNavigate } from 'react-router-dom';  // Thay useHistory bằng useNavigate
-
+import { useDispatch } from 'react-redux';
+import { moviesNew } from '../../Redux/actions/MovieThunk';
+import { Link } from 'react-router-dom';
 const HeroSlide = () => {
-
     SwiperCore.use([Autoplay]);
-
     const [movieItems, setMovieItems] = useState([]);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const getMovies = async () => {
-            const params = {page: 1}
             try {
-                const response = await tmdbApi.getMoviesList(movieType.popular, {params});
-                setMovieItems(response.results.slice(1, 4));
-                console.log(response);
-            } catch {
-                console.log('error');
+                const response = await dispatch(moviesNew(1, 5));
+                
+                if (response && response.content && Array.isArray(response.content)) {
+                    setMovieItems(response.content);
+                } else {
+                    console.error("Invalid response format:", response);
+                }
+            } catch (error) {
+                console.error('Error fetching movies:', error);
             }
         }
         getMovies();
-    }, []);
+    }, [dispatch]);
+
 
     return (
         <div className="hero-slide">
@@ -37,85 +40,125 @@ const HeroSlide = () => {
                 slidesPerView={1}
             >
                 {
-                    movieItems.map((item, i) => (
-                        <SwiperSlide key={i}>
-                            {({ isActive }) => (
-                                <HeroSlideItem item={item} className={`${isActive ? 'active' : ''}`} />
-                            )}
+                    movieItems && movieItems.length > 0 ? (
+                        movieItems.map((item, i) => (
+                            <SwiperSlide key={i}>
+                                {({ isActive }) => (
+                                    <HeroSlideItem item={item} className={`${isActive ? 'active' : ''}`} />
+                                )}
+                            </SwiperSlide>
+                        ))
+                    ) : (
+                        <SwiperSlide>
+                            <div className="hero-slide__item">
+                                <div className="hero-slide__item__content container">
+                                    <div className="hero-slide__item__content__info">
+                                        <h2 className="title">Loading...</h2>
+                                    </div>
+                                </div>
+                            </div>
                         </SwiperSlide>
-                    ))
+                    )
                 }
             </Swiper>
-            {
-                movieItems.map((item, i) => <TrailerModal key={i} item={item}/> )
-            }
         </div>
     );
 }
 
 const HeroSlideItem = props => {
-
-    const navigate = useNavigate();  // Thay đổi từ useHistory thành useNavigate
-
+    const navigate = useNavigate();
     const item = props.item;
+    const tagStyle = {
+        backgroundColor: '#444',
+        padding: '4px 10px',
+        borderRadius: '6px',
+        fontSize: '14px',
+    };
 
-    const background = apiConfig.originalImage(item.backdrop_path ? item.backdrop_path : item.poster_path);
+    const genreStyle = {
+        backgroundColor: '#2c2c2c',
+        padding: '6px 12px',
+        borderRadius: '20px',
+        fontSize: '14px',
+    };
 
-    const setModalActive = async () => {
-        const modal = document.querySelector(`#modal_${item.id}`);
 
-        const videos = await tmdbApi.getVideos(category.movie, item.id);
+    const background = item.thumbnailUrl;
+    const title = item.title;
 
-        if (videos.results.length > 0) {
-            const videSrc = 'https://www.youtube.com/embed/' + videos.results[0].key;
-            modal.querySelector('.modal__content > iframe').setAttribute('src', videSrc);
-        } else {
-            modal.querySelector('.modal__content').innerHTML = 'No trailer';
-        }
-
-        modal.classList.toggle('active');
-    }
-
+    const formatDuration = (minutes) => {
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        if (h > 0 && m > 0) return `${h}h ${m} phút`;
+        if (h > 0 && m === 0) return `${h}h`;
+        return `${m} phút`;
+    };
+    console.log(item.slug);
     return (
         <div
             className={`hero-slide__item ${props.className}`}
-            style={{backgroundImage: `url(${background})`}}
+            style={{
+                backgroundImage: `url(${background})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                color: '#fff',
+                padding: '40px',
+            }}
         >
-            <div className="hero-slide__item__content container">
-                <div className="hero-slide__item__content__info">
-                    <h2 className="title">{item.title}</h2>
-                    <div className="overview">{item.overview}</div>
-                    <div className="btns">
-                        <Button onClick={() => navigate('/movie/' + item.id)}>  {/* Thay đổi từ history.push thành navigate */}
-                            Watch now
-                        </Button>
-                        <OutlineButton onClick={setModalActive}>
-                            Watch trailer
-                        </OutlineButton>
-                    </div>
+            <div style={{maxWidth: '800px', marginTop: '200px',}}>
+                <h1 style={{fontSize: '40px', fontWeight: 'bold', marginBottom: '20px'}}>
+                    {title}
+                </h1>
+
+                <div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px'}}>
+                <span style={{
+                    backgroundColor: '#f5c518',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    fontSize: '14px'
+                }}>
+                    MF {item.averageRating}
+                </span>
+                    <span style={tagStyle}>T{item.episodeCount}</span>
+                    <span style={tagStyle}>{item.releaseYear}</span>
+                    <span style={tagStyle}>
+  {item.duration ? formatDuration(item.duration) : "Đang cập nhật"}
+</span>
+
                 </div>
-                <div className="hero-slide__item__content__poster">
-                    <img src={apiConfig.w500Image(item.poster_path)} alt="" />
+
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px'}}>
+                    {item.genres.map((genre) => (
+                        <span key={genre.id} style={genreStyle}>
+            {genre.name}
+        </span>
+                    ))}
                 </div>
+
+                <p style={{fontSize: '15px', lineHeight: '1.6'}}
+                   dangerouslySetInnerHTML={{__html: item.description}}>
+                </p>
+                <div style={{marginTop: '20px'}}>
+                    <Button
+                        onClick={() => {
+                                navigate('/detail/' + item.slug);
+                        }}
+                    >
+                        Xem ngay
+                    </Button>
+                </div>
+
+
+            </div>
+
+            <div className="hero-slide__item__content__poster">
+                <img src={item.posterUrl} alt={item.title} style={{borderRadius: '12px', width: '250px'}}/>
             </div>
         </div>
-    )
-}
+    );
 
-const TrailerModal = props => {
-    const item = props.item;
-
-    const iframeRef = useRef(null);
-
-    const onClose = () => iframeRef.current.setAttribute('src', '');
-
-    return (
-        <Modal active={false} id={`modal_${item.id}`}>
-            <ModalContent onClose={onClose}>
-                <iframe ref={iframeRef} width="100%" height="500px" title="trailer"></iframe>
-            </ModalContent>
-        </Modal>
-    )
 }
 
 export default HeroSlide;

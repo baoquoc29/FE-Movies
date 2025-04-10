@@ -10,6 +10,7 @@ import Detail from '../pages/detail/Detail';
 import DepositScreen from "../pages/payment/DepositScreen";
 import PaymentResult from "../pages/payment/PaymentResponse";
 import MovieDetail from "../pages/detail/MovieDetail";
+import WatchingMovie from "../pages/watching/WatchingMovie";
 
 export function AppRouter() {
     return (
@@ -17,7 +18,8 @@ export function AppRouter() {
             <Header /> {/* Đặt Header ở ngoài Routes */}
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/detail" element={<MovieDetail />} />
+                <Route path="/detail/:slug" element={<MovieDetail />} />
+                <Route path="/watch/:slug/:ep" element={<WatchingMovie />} />
                 <Route path="/payment" element={<DepositScreen />} />
                 <Route path="/result" element={<PaymentResult />} />
                 <Route path="/movie" element={<Catalog />} />

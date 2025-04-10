@@ -5,6 +5,9 @@ export class UserService extends baseService {
     constructor() {
         super()
     };
+    register = (username,password,fullName,email,gender,dateOfBirth) => {
+        return this.post('api/v1/auth/register',{username,email,password,fullName,gender,dateOfBirth})
+    }
     login = (username,password) => {
         return this.post('api/v1/auth/login',{username,password})
     }

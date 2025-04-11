@@ -21,7 +21,7 @@ const MovieList = props => {
                 let response = null;
 
                 if (props.type === 'popular') {
-                    response = await dispatch(moviesPopular(props.page, 10)); // Dùng state
+                    response = await dispatch(moviesPopular(props.page, 10));
                 } else if (props.type === 'top-rated') {
                     response = await dispatch(moviesTopRated(props.page, 10));
                 } else if (props.type === 'similar') {
@@ -70,7 +70,8 @@ const MovieList = props => {
                                     duration: item.duration,
                                     averageRating : item.averageRating,
                                     episodeCount: item.episodeCount,
-                                    status: item.status
+                                    status: item.status,
+                                    genres : item.genres,
                                 }}
                             />
 

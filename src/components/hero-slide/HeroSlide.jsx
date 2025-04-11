@@ -83,7 +83,7 @@ const HeroSlideItem = props => {
     };
 
 
-    const background = item.thumbnailUrl;
+    const background = item.posterUrl;
     const title = item.title;
 
     const formatDuration = (minutes) => {

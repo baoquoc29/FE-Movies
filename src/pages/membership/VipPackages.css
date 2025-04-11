@@ -1,0 +1,149 @@
+.vip-packages-container {
+    max-width: 100%;
+    padding: 2rem;
+    margin-top: 4rem;
+}
+
+.vip-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.vip-subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.vip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    align-items: stretch; /* Thêm dòng này */
+}
+
+.vip-card {
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    border: 1px solid #eaeaea;
+    display: flex; /* Thêm dòng này */
+    flex-direction: column; /* Thêm dòng này */
+    height: 100%; /* Thêm dòng này */
+}
+
+.vip-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.vip-card.popular {
+    border: 2px solid #ff6b6b;
+    transform: scale(1.03);
+}
+
+.vip-card.inactive {
+    opacity: 0.7;
+    filter: grayscale(70%);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background: #ff6b6b;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.vip-name {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.vip-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    flex-grow: 1; /* Thêm dòng này */
+}
+.loading, .error {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+}
+
+.loading {
+    color: #666;
+}
+
+.error {
+    color: #ff6b6b;
+}
+.vip-price-container {
+    margin-bottom: 1.5rem;
+}
+
+.vip-price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff6b6b;
+    display: block;
+}
+
+.vip-price-per-month {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.vip-duration {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.buy-button {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: auto; /* Thêm dòng này */
+}
+
+.buy-button:hover {
+    background: #45a049;
+}
+
+.buy-button.popular-button {
+    background: #ff6b6b;
+}
+
+.buy-button.popular-button:hover {
+    background: #ff5252;
+}
+
+.buy-button.disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .vip-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vip-card.popular {
+        transform: none;
+    }
+}

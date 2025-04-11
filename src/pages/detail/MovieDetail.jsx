@@ -12,16 +12,19 @@ import {
     CommentOutlined as CommentIcon,
     DownOutlined,
     SendOutlined,
-    WarningOutlined, EyeOutlined, EyeInvisibleOutlined
+    WarningOutlined, EyeOutlined, EyeInvisibleOutlined, HeartFilled
 } from '@ant-design/icons';
 import './MovieDetail.scss';
 import {moviesSlug} from '../../Redux/actions/MovieThunk';
 import {episodeSlug} from '../../Redux/actions/EpisodeThunk';
 import {commentDetailSlug, commentBySlug, pushComment, totalComment} from '../../Redux/actions/CommentThunk';
+import {check,pushFavourite,removeFavourite} from '../../Redux/actions/FavouriteThunk';
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import dayjs from "dayjs";
+import StarRatingModal from "../StarRatingModal";
+import {getStatus} from "../../Redux/actions/RatingThunk";
 const { Content } = Layout;
 const { TextArea } = Input;
 
@@ -33,6 +36,7 @@ const MovieDetail = () => {
     const { TabPane } = Tabs;
     const commentsRef = useRef(null);
     const dispatch = useDispatch();
+    const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
     const scrollToComments = () => {
         if (commentsRef.current) {
             const offset = 20; // Offset in pixels from the top
@@ -95,7 +99,8 @@ const MovieDetail = () => {
     const [totalComments, setTotalComments] = useState([]);
     const [replies, setReplies] = useState({});
     const [visibleSpoilers, setVisibleSpoilers] = useState(new Set());
-
+    const [checkFavourite, setCheckFavourite] = useState(false);
+    const [status,setStatus] = useState(false);
     useEffect(() => {
         const fetchMovie = async () => {
             try {
@@ -126,19 +131,53 @@ const MovieDetail = () => {
                 console.error("Không thể tải danh sách tập:", error);
             }
         };
+        fetchEpisodes();
+        fetchComment();
+        fetchMovie();
+    }, [dispatch, slug]);
+    useEffect(() => {
+        if (!movie?.id) return;
+
         const fetchTotalComment = async () => {
             try {
                 const data = await dispatch(totalComment(movie.id));
                 setTotalComments(data);
             } catch (error) {
-                console.error("Không thể tải danh sách tập:", error);
+                console.error("Không thể tải tổng số bình luận:", error);
             }
         };
-        fetchEpisodes();
+
+        const checkFvr = async () => {
+            try {
+                const data = await dispatch(check(movie.id));
+                if (data) {
+                    setCheckFavourite(data);
+                    console.log("✅ Check favourite:", data);
+                } else {
+                    console.warn("⚠️ Không có dữ liệu yêu thích.");
+                }
+            } catch (error) {
+                console.error("❌ Lỗi khi kiểm tra yêu thích:", error);
+            }
+        };
+        const fetchCheckStatus = async () => {
+            try {
+                const data = await dispatch(getStatus(movie.id));
+                if (data === "Success") {
+                    setStatus(true);
+                    console.log("✅ Check favourite:", data);
+                } else {
+                    console.warn("⚠️ Không có dữ liệu yêu thích.");
+                }
+            } catch (error) {
+                console.error("Không thể tải tổng số bình luận:", error);
+            }
+        };
+
+        fetchCheckStatus();
         fetchTotalComment();
-        fetchComment();
-        fetchMovie();
-    }, [dispatch, slug]);
+        checkFvr();
+    }, [dispatch, movie?.id]);
     const handleReplySubmit = async (index) => {
         const content = replyText[index];
         const parentComment = comments[index]; // hoặc comment hiện tại
@@ -183,8 +222,31 @@ const MovieDetail = () => {
     const handleButtonClick = (episode) => {
         window.location.href = `/watch/${slug}/${episode}`;
     };
-
-
+    const handleAddFavorite = async () => {
+        try {
+            const movieId = movie.id;
+            if (!checkFavourite) {
+                const response = await dispatch(pushFavourite(movieId));
+                if (response === "Success") {
+                    message.success('Đã thêm vào mục yêu thích!');
+                    setCheckFavourite(true);
+                } else {
+                    message.warning(response || 'Không thể thêm vào mục yêu thích.');
+                }
+            } else {
+                const response = await dispatch(removeFavourite(movieId));
+                if (response === "Success") {
+                    message.success('Đã xóa khỏi mục yêu thích!');
+                    setCheckFavourite(false);
+                } else {
+                    message.warning(response || 'Không thể xóa khỏi mục yêu thích.');
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            message.error('Lỗi khi thêm yêu thích.');
+        }
+    };
 
     const toggleReplyVisibility = async (commentId, index) => {
         const isVisible = replyVisible[index];
@@ -338,6 +400,15 @@ const MovieDetail = () => {
                 <img src={movie.thumbnailUrl} alt="" className="backdrop-image"/>
             </div>
 
+            <StarRatingModal
+                visible={isRatingModalVisible}
+                onClose={() => setIsRatingModalVisible(false)}
+                ratingAvg={movie.averageRating}
+                title={movie.title}
+                movieId={movie.id}
+                totalRating={movie.totalRating}
+            />
+
             <Content className="movie-content">
                 <Row gutter={24}>
                     {/* Cột bên trái - chiếm 4 phần (40%) */}
@@ -428,26 +499,39 @@ const MovieDetail = () => {
 
                     <Col xs={30} lg={30} className="movie-content-column">
                         <div className="right-content full-width">
-                        <div className="action-buttons">
+                            <div className="action-buttons">
                                 <Button type="primary" icon={<PlayCircleOutlined/>} size="large"
-                                        className="watch-now-btn"   onClick={() => handleButtonClick(1)}>
+                                        className="watch-now-btn" onClick={() => handleButtonClick(1)}>
                                     Xem Ngay
                                 </Button>
-                                <Button icon={<HeartOutlined/>}>
-                                    Yêu thích
+                                <Button
+                                    icon={checkFavourite ? <HeartFilled style={{color: 'red'}}/> : <HeartOutlined/>}
+                                    onClick={handleAddFavorite}
+                                >
+                                    {checkFavourite ? 'Đã yêu thích' : 'Yêu thích'}
                                 </Button>
-                                <Button icon={<PlusOutlined/>}>
-                                    Thêm vào
+
+                                <Button icon={<ShareAltOutlined/>} onClick={handleShare}>
+                                    Chia sẻ
                                 </Button>
-                            <Button icon={<ShareAltOutlined />} onClick={handleShare}>
-                                Chia sẻ
-                            </Button>
                                 <Button icon={<CommentOutlined/>} onClick={scrollToComments}>
                                     Bình luận
                                 </Button>
-                                <Button icon={<StarOutlined/>}>
-                                    Đánh giá
-                                </Button>
+                                {status ? (
+                                    <Button
+                                        icon={<StarOutlined style={{ color: '#faad14' }} />}
+                                        onClick={() => message.info('Bạn đã đánh giá phim này rồi')}
+                                    >
+                                        Đã đánh giá
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        icon={<StarOutlined />}
+                                        onClick={() => setIsRatingModalVisible(true)}
+                                    >
+                                        Đánh giá phim
+                                    </Button>
+                                )}
                             </div>
                         </div>
                         <Col xs={24} lg={24} className="movie-tabs">

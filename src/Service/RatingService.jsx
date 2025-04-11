@@ -5,8 +5,12 @@ export class RatingService extends baseService {
     constructor() {
         super()
     };
-    register = () => {
-        return this.post('api/v1/auth/register',)
+    getStatusRating = (movieId) => {
+        return this.get(`api/v1/rating/check/${movieId}`)
     }
+    addRating = (movieId, rating,description) => {
+        return this.post(`api/v1/rating/create/${movieId}`, {rating,description});
+    }
+
 }
 export const ratingService = new RatingService ();

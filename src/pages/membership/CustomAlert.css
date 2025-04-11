@@ -1,0 +1,55 @@
+.alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.alert-box {
+    background-color: #ffffff;
+    padding: 24px 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.alert-box h3 {
+    margin-bottom: 12px;
+    color: #4caf50;
+}
+
+.alert-box p {
+    margin-bottom: 20px;
+}
+
+.alert-box button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.alert-box button:hover {
+    background-color: #388e3c;
+}
+
+@keyframes fadeIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

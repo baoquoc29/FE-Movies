@@ -4,7 +4,6 @@ import {
     TOKEN,
     USER_LOGIN
 } from "../../Utils/Setting/Config";
-import {paymentService} from "../../Service/PaymentService";
 
 
 export const loginUser = (username, password) => async (dispatch) => {
@@ -12,8 +11,8 @@ export const loginUser = (username, password) => async (dispatch) => {
         const res = await userService.login(username, password);
         console.log(res);
         if (res.data && res.data.accessToken) {
-            const { accessToken, username,fullName } = res.data;  // Direct destructuring
-            const userDetails = { username,fullName };
+            const { accessToken, username,fullName,balance } = res.data;  // Direct destructuring
+            const userDetails = { username,fullName,balance };
             console.log(userDetails);
             localStorage.setItem(TOKEN, accessToken);
             localStorage.setItem(USER_LOGIN, JSON.stringify(userDetails));
@@ -64,6 +63,26 @@ export const register = (username,password,fullName,email,gender,dateOfBirth) =>
             });
             return res.data;
         } else {
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error; // Truyền lỗi cho phần gọi useEffect
+    }
+};
+
+export const getUserByUsername = (username) => async (dispatch) => {
+    try {
+        const res = await userService.informationUser(username);
+
+        if (res && res.data) {
+            dispatch({
+                type: "InfoUser",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
             throw new Error('Dữ liệu không hợp lệ');
         }
     } catch (error) {

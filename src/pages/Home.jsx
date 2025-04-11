@@ -13,9 +13,6 @@ const Home = () => {
                 <div className="section mb-3">
                     <div className="section__header mb-2">
                         <h2>Phim mới</h2>
-                        <Link to="/movie">
-                            <OutlineButton className="small">Xem thêm</OutlineButton>
-                        </Link>
                     </div>
                     <MovieList type={"similar"} page={1} />
                 </div>
@@ -23,9 +20,6 @@ const Home = () => {
                 <div className="section mb-3">
                     <div className="section__header mb-2">
                         <h2>Phim Nổi Bật</h2>
-                        <Link to="/movie">
-                            <OutlineButton className="small">Xem thêm</OutlineButton>
-                        </Link>
                     </div>
                     <MovieList type={"popular"} page={2} />
                 </div>
@@ -34,9 +28,6 @@ const Home = () => {
                 <div className="section mb-3">
                     <div className="section__header mb-2">
                         <h2>Top Phim Hay</h2>
-                        <Link to="/tv">
-                            <OutlineButton className="small">Xem thêm</OutlineButton>
-                        </Link>
                     </div>
                     <MovieList type={"top-rated"} page={3} />
                 </div>

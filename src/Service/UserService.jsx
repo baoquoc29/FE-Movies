@@ -14,5 +14,10 @@ export class UserService extends baseService {
     changePassword = (currentPassword, newPassword,confirmPassword) => {
         return this.post('api/v1/auth/change-password',{currentPassword, newPassword,confirmPassword})
     }
+
+    informationUser = (username) => {
+        return this.get(`api/v1/auth/${username}`);
+    }
+
 }
 export const userService = new UserService ();

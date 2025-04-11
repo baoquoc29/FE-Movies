@@ -20,19 +20,19 @@ const MovieCard = (props) => {
         const popoverWidth = 450; // Width of the popover
         const margin = 20;
 
-        // Calculate available space on both sides
         const spaceRight = window.innerWidth - rect.right;
         const spaceLeft = rect.left;
 
-        // Check if there's enough space on the right
         if (spaceRight >= popoverWidth + margin) {
             setPopoverPosition('right_ref');
-        }
-        // If not enough space on right, check if there's enough on the left
-        else if (spaceLeft  >= popoverWidth + margin) {
+        } else if (spaceLeft >= popoverWidth + margin) {
             setPopoverPosition('left_ref');
+        } else {
+            // Không đủ không gian hai bên, chọn hướng khác (ví dụ dưới)
+            setPopoverPosition('bottom_ref');
         }
     }, [showPopover]);
+
 
     return (
         <div

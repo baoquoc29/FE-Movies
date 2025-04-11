@@ -11,6 +11,9 @@ import DepositScreen from "../pages/payment/DepositScreen";
 import PaymentResult from "../pages/payment/PaymentResponse";
 import MovieDetail from "../pages/detail/MovieDetail";
 import WatchingMovie from "../pages/watching/WatchingMovie";
+import MovieGrid from "../components/movie-grid/MovieGrid";
+import FavoriteMovies from "../pages/FavoriteMovies";
+import VipPackages from "../pages/membership/VipPackages";
 
 export function AppRouter() {
     return (
@@ -22,10 +25,9 @@ export function AppRouter() {
                 <Route path="/watch/:slug/:ep" element={<WatchingMovie />} />
                 <Route path="/payment" element={<DepositScreen />} />
                 <Route path="/result" element={<PaymentResult />} />
-                <Route path="/movie" element={<Catalog />} />
-                <Route path="/tv" element={<Catalog />} />
-                <Route path="/:category/search/:keyword" element={<Catalog />} />
-                <Route path="/:category/:id" element={<Detail />} />
+                <Route path="/favortie" element={<FavoriteMovies />} />
+                <Route path="/membership" element={<VipPackages />} />
+                <Route path="/search/:keyword" element={<MovieGrid />} />
             </Routes>
             <Footer /> {/* Đặt Footer ở ngoài Routes */}
         </>

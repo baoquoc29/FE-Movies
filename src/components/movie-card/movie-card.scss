@@ -66,12 +66,13 @@
         transition: opacity 0.3s ease, transform 0.3s ease;
 
         &.right_ref {
-            left: calc(100% + 10px); /* 10px spacing from the card */
+            right: auto;
+            left: 100%;
+            margin-left: 10px;
         }
-
         &.left_ref {
-            right: calc(100% + 10px); /* 10px spacing from the card */
-
+            left: auto;
+            right: -100%;
         }
 
         img {

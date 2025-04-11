@@ -18,7 +18,7 @@ import {
     FullscreenExitOutlined,
     CheckOutlined,
     MessageOutlined,
-    PlusOutlined, UpOutlined, DownOutlined
+    PlusOutlined, UpOutlined, DownOutlined, HeartFilled
 } from '@ant-design/icons';
 import './WatchingMovie.scss';
 import './Comments.scss';
@@ -31,6 +31,8 @@ import {commentBySlug, commentDetailSlug, pushComment, totalComment} from "../..
 import dayjs from "dayjs";
 import LoginModal from "../account/LoginModal";
 import RegisterModal from "../account/RegisterModal";
+import {check, pushFavourite} from "../../Redux/actions/FavouriteThunk";
+import { useNavigate } from 'react-router-dom';
 const { Content } = Layout;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -41,6 +43,7 @@ const WatchingMovie = () => {
     const [isSpoiler, setIsSpoiler] = useState(false);
     const [comments, setComments] = useState([]);
     const [totalComments, setTotalComments] = useState([]);
+    const navigate = useNavigate();
     const [userData, setUserData] = useState(() => {
         const savedUser = localStorage.getItem('USER_LOGIN');
         return savedUser ? JSON.parse(savedUser) : null;
@@ -56,7 +59,7 @@ const WatchingMovie = () => {
     const iframeRef = useRef(null); // Reference to the iframe
     const dispatch = useDispatch();
     const { slug,ep } = useParams();
-    const [episodeData, setEpisodeData] = useState(null);
+    const [episodeData, setEpisodeData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [episodes, setEpisodes] = useState([]);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -64,7 +67,7 @@ const WatchingMovie = () => {
     const [replies, setReplies] = useState({});
     const [replyVisible, setReplyVisible] = useState({});
     const [replyInputs, setReplyInputs] = useState({}); // lưu nội dung các phản hồi nhập vào theo index
-
+    const [checkFavourite, setCheckFavourite] = useState(false);
     useEffect(() => {
         if (isCinemaMode) {
             // Hide the main website header
@@ -119,6 +122,7 @@ const WatchingMovie = () => {
             try {
                 const response = await dispatch(episode(slug, ep));
                 setEpisodeData(response);
+                console.log(response);
             } catch (err) {
                 console.error("❌ Fetch error:", err);
             } finally {
@@ -141,25 +145,68 @@ const WatchingMovie = () => {
                 console.error("Không thể tải danh sách tập:", error);
             }
         };
+        fetchComment();
+        fetchData();
+        fetchEpisodes();
+    }, [dispatch, slug, ep]);
+    useEffect(() => {
+        if (!episodeData.movieResponse?.id) return;
         const fetchTotalComment = async () => {
             try {
-                const data = await dispatch(totalComment(episodeData.movieResponse.id));
+                setIsLoading(true);
+                const data = await dispatch(totalComment(episodeData.movieResponse?.id));
                 setTotalComments(data);
             } catch (error) {
-                console.error("Không thể tải danh sách tập:", error);
+                console.error("Không thể tải tổng số bình luận:", error);
+            }
+            finally {
+                setIsLoading(false);
             }
         };
-        fetchComment();
+        const checkFvr = async () => {
+            try {
+                setIsLoading(true);
+                const data = await dispatch(check(episodeData.movieResponse?.id));
+                if (data) {
+                    setCheckFavourite(data);
+                    console.log("✅ Check favourite:", data);
+                } else {
+                    console.warn("⚠️ Không có dữ liệu yêu thích.");
+                }
+            } catch (error) {
+                console.error("❌ Lỗi khi kiểm tra yêu thích:", error);
+            }
+            finally {
+                setIsLoading(false);
+            }
+        };
         fetchTotalComment();
-        fetchEpisodes();
-        fetchData();
-    }, [dispatch, slug, ep]);
+        checkFvr();
+    }, [dispatch,episodeData.movieResponse?.id]);
 
+
+    console.log(episodeData);
+    const handleAddFavorite = async () => {
+        try {
+            const movieId = episodeData.movieResponse?.id;
+            const response = await dispatch(pushFavourite(movieId));
+
+            if (response === "Success") {
+                message.success('Đã thêm vào mục yêu thích!');
+
+                setCheckFavourite(true);
+
+            } else {
+                message.warning('Không thể thêm vào mục yêu thích.');
+            }
+        } catch (error) {
+            console.error(error);
+            message.error('Lỗi khi thêm yêu thích.');
+        }
+    };
     if (isLoading) {
         return <div>Đang tải dữ liệu...</div>; // hoặc một loading spinner
     }
-    console.log(episodeData);
-
     const switchToLogin = () => {
         setShowRegisterModal(false);
         setShowLoginModal(true);
@@ -426,6 +473,7 @@ const WatchingMovie = () => {
                         type="text"
                         icon={<ArrowLeftOutlined />}
                         className="back-button"
+                        onClick={() => navigate(-1)}
                     />
                     <span className="movie-title">Xem phim {episodeData.movieResponse.title}</span>
                 </div>
@@ -445,8 +493,12 @@ const WatchingMovie = () => {
                     <div className="left-controls">
                         {!isCinemaMode && (
                             <>
-                                <Button type="text" icon={<HeartOutlined />}>
-                                    Yêu thích
+                                <Button
+                                    icon={checkFavourite ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined />}
+                                    onClick={handleAddFavorite}
+                                    disabled={checkFavourite}
+                                >
+                                    {checkFavourite ? 'Đã yêu thích' : 'Yêu thích'}
                                 </Button>
                                 <Button 
                                     type="text" 

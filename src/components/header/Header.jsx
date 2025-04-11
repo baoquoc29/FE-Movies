@@ -7,12 +7,14 @@ import RegisterModal from '../../pages/account/RegisterModal';
 import defaultAvatar from '../../assets/avt.jpg';
 import { FaUser, FaHeart, FaList, FaMoneyBillWave, FaSignOutAlt } from 'react-icons/fa';
 import ChangePasswordModal from "../../pages/account/ChangePasswordModal";
-
+import SearchBar from "./SearchBar";
+import {searchMovies, moviesNew, moviesPopular, moviesTopRated} from "../../Redux/actions/MovieThunk";
+import {useDispatch} from "react-redux";
+import {getUserByUsername} from "../../Redux/actions/UserThunk";
 const headerNav = [
     { display: 'Trang chủ', path: '/' },
     { display: 'Chủ đề', path: '/movie' },
-    { display: 'Phim Hay', path: '/movie' },
-    { display: 'TV Series', path: '/tv' },
+    { display: 'Hội viên', path: '/membership' },
     { display: 'Diễn viên', path: '/tv' },
     { display: 'Quốc gia', path: '/tv' },
     { display: 'Thành viên', path: '/#' }
@@ -25,11 +27,73 @@ const Header = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dispatch = useDispatch();
+    const [data,setData] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [userData, setUserData] = useState(() => {
         const savedUser = localStorage.getItem('USER_LOGIN');
         return savedUser ? JSON.parse(savedUser) : null;
     });
+    const [user, setUser] = useState({});
     const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+    useEffect(() => {
+        const getList = async () => {
+            try {
+                setLoading(true);
+                const response = await dispatch(searchMovies({size : 100}));
+                if (response && response.content) {
+                    setData(response);
+                } else {
+                    console.log("Không có dữ liệu trả về từ API");
+                    setError('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error("Đã xảy ra lỗi:", error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getList();
+    }, []);
+    useEffect(() => {
+        const getInformationUser = async () => {
+            try {
+                setLoading(true);
+                const response = await dispatch(getUserByUsername(userData.username));
+                if (response) {
+                    setUser(response);
+                } else {
+                    console.log("Không có dữ liệu trả về từ API");
+                    setError('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error("Đã xảy ra lỗi:", error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (userData?.username) {
+            getInformationUser();
+        }
+
+        // Thêm event listener để cập nhật khi balance thay đổi
+        const handleBalanceUpdate = () => {
+            if (userData?.username) {
+                getInformationUser();
+            }
+        };
+
+        window.addEventListener('balanceUpdated', handleBalanceUpdate);
+
+        return () => {
+            window.removeEventListener('balanceUpdated', handleBalanceUpdate);
+        };
+    }, [userData?.username, dispatch]);
 
     useEffect(() => {
         const shrinkHeader = () => {
@@ -102,9 +166,10 @@ const Header = () => {
             <div ref={headerRef} className="header">
                 <div className="header__wrap container">
                     <div className="logo">
-                        <img src={logo} alt="logo" />
-                        <Link to="/">Movies Faster</Link>
+                        <img src={logo} alt="logo"/>
+                        <Link to="/">MF</Link>
                     </div>
+                    <SearchBar data={data} />
                     <ul className="header__nav">
                         {headerNav.map((e, i) => (
                             <li key={i} className={i === active ? 'active' : ''}>
@@ -112,28 +177,46 @@ const Header = () => {
                                     userData ? (
                                         <div className="dropdown">
                                             <button className="dropbtn" onClick={toggleDropdown}>
-                                                <img src={userData.avatar || defaultAvatar} alt="Avatar" className="avatar"/>
+                                                <img src={userData.avatar || defaultAvatar} alt="Avatar"
+                                                     className="avatar"/>
                                                 {userData.fullName}
                                             </button>
                                             <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`}>
-                                                <Link to="#" onClick={toggleChangePasswordModal} style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <FaUser style={{ marginRight: '10px' }} />
+                                                <div style={{
+                                                    padding: '10px',
+                                                    borderBottom: '1px solid #ddd',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    Số dư: {user?.balance?.toLocaleString('vi-VN', {
+                                                    style: 'currency',
+                                                    currency: 'VND'
+                                                }) || '0 ₫'}
+                                                </div>
+                                                {user?.vipExpireDate && new Date(user.vipExpireDate) > new Date() && (
+                                                    <div style={{
+                                                        padding: '10px',
+                                                        borderBottom: '1px solid #ddd',
+                                                        color: 'red',
+                                                        fontWeight: 'bold'
+                                                    }}>
+                                                        VIP còn đến: {new Date(user.vipExpireDate).toLocaleDateString('vi-VN')}
+                                                    </div>
+                                                )}
+                                                <Link to="#" onClick={toggleChangePasswordModal}
+                                                      style={{display: 'flex', alignItems: 'center'}}>
+                                                    <FaUser style={{marginRight: '10px'}}/>
                                                     Đổi mật khẩu
                                                 </Link>
-                                                <Link to="/profile">
-                                                    <FaHeart style={{ marginRight: '10px' }} />
+                                                <Link to="/favortie">
+                                                    <FaHeart style={{marginRight: '10px'}}/>
                                                     Yêu thích
                                                 </Link>
-                                                <Link to="/">
-                                                    <FaList style={{ marginRight: '10px' }} />
-                                                    Danh sách
-                                                </Link>
                                                 <Link to="/payment">
-                                                    <FaMoneyBillWave style={{ marginRight: '10px' }} />
+                                                    <FaMoneyBillWave style={{marginRight: '10px'}}/>
                                                     Nạp tiền
                                                 </Link>
                                                 <a href="#" onClick={handleLogout}>
-                                                    <FaSignOutAlt style={{ marginRight: '10px' }} />
+                                                    <FaSignOutAlt style={{marginRight: '10px'}}/>
                                                     Đăng xuất
                                                 </a>
                                             </div>

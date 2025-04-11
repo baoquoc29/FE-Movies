@@ -143,7 +143,9 @@
             }
 
             .cast-list {
+              display: grid;
               .cast-item {
+
                 margin-bottom: 12px;
 
                 .actor-name {
@@ -813,7 +815,8 @@
           
           // Cast grid styling
           .cast-grid {
-            display: grid;
+            display: flex;
+            flex-wrap: wrap;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 20px;
             

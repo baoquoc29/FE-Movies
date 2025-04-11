@@ -52,3 +52,26 @@ export const deposit = (username, amount) => async (dispatch) => {
     }
 };
 
+export const buyVip = (username, duration) => async (dispatch) => {
+    try {
+        const res = await paymentService.buyVip(username, duration);
+        console.log(res.data); // Kiểm tra response ở đây
+
+        // Kiểm tra xem có dữ liệu trong res.data hay không
+        if (res && res.data) {
+            dispatch({
+                type: "BUY_VIP",
+                payload: res.data, // Đảm bảo trả về dữ liệu có key 'amount'
+            });
+            return res.data; // Trả lại dữ liệu cho phần gọi useEffect
+        } else {
+            console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error; // Truyền lỗi cho phần gọi useEffect
+    }
+};
+
+

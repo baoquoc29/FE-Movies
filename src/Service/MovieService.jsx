@@ -30,6 +30,48 @@ export class MovieService extends baseService {
         return this.get(`api/v1/movies/${movieSlug}`,false);
     };
 
+    movieSearch = ({
+                       keyword = '',
+                       country = '',
+                       releaseYear = '',
+                       genre = '',
+                       page = 1,
+                       size = ''
+                   } = {}) => {
+        // Tạo object params với giá trị mặc định hợp lý
+        const params = {
+            ...(keyword && { keyword }),
+            ...(country && { country }),
+            ...(releaseYear && { releaseYear }),
+            ...(genre && { genre }),
+            page,
+            size
+        };
+
+        // Chuyển thành URLSearchParams và tự động loại bỏ các giá trị rỗng
+        const queryParams = new URLSearchParams();
+
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== '') {
+                queryParams.append(key, value);
+            }
+        }
+
+        return this.get(`api/v1/movies/search?${queryParams.toString()}`, false);
+    };
+
+    getAllGenres = () => {
+        return this.get(`api/v1/genres`,false);
+    }
+
+    getAllCountry = () => {
+        return this.get(`api/v1/movies/country`,false);
+    }
+
+    getAllReleaseYear = () => {
+        return this.get(`api/v1/movies/releaseYear`,false);
+    }
+
 
 }
 export const movieService = new MovieService ();

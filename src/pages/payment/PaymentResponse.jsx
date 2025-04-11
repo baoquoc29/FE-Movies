@@ -43,6 +43,7 @@ const PaymentResult = () => {
                 .then((data) => {
                     if (data && data.amount) {
                         setMessage(`✅ Nạp thành công ${data.amount.toLocaleString()} VNĐ!`);
+                        window.dispatchEvent(new Event('balanceUpdated'));
                     } else {
                         setMessage('❌ Dữ liệu giao dịch không hợp lệ.');
                     }

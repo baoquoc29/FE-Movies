@@ -450,3 +450,33 @@
         transform: translateY(0);
     }
 }
+.header__search {
+    display: flex;
+    align-items: center;
+    margin: 0 20px;
+    flex: 1;
+
+    .search-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 20px 0 0 20px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .search-button {
+        padding: 8px 16px;
+        background-color: #e50914;
+        color: #fff;
+        border: none;
+        border-radius: 0 20px 20px 0;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: #b20710;
+        }
+    }
+}

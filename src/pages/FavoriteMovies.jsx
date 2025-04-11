@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import './movie-grid.scss';
+import '../components/movie-grid/movie-grid.scss';
 
-import MovieCard from '../movie-card/MovieCard';
+import MovieCard from '../components/movie-card/MovieCard';
 import { Pagination } from 'antd';
-import {countryMovies, genresMovies, releaseYearMovies, searchMovies} from "../../Redux/actions/MovieThunk";
+import {countryMovies, genresMovies, releaseYearMovies, searchMovies} from "../Redux/actions/MovieThunk";
+import {searchFavorite} from "../Redux/actions/FavouriteThunk";
+
 import { useDispatch } from "react-redux";
 import { FiSearch } from 'react-icons/fi';
 
-const MovieGrid = () => {
+const FavouriteMovies = () => {
     const [searchItems, setSearchItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,7 +44,7 @@ const MovieGrid = () => {
                     size: pagination.pageSize
                 };
 
-                const response = await dispatch(searchMovies(searchParams));
+                const response = await dispatch(searchFavorite(searchParams));
 
                 if (response?.content) {
                     setSearchItems(response.content);
@@ -176,10 +178,6 @@ const MovieGrid = () => {
         <>
             <div className="search-result-header"
                  style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem'}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                    <FiSearch className="icon"/>
-                    <span>Kết quả tìm kiếm "<strong>{keyword}</strong>"</span>
-                </div>
 
                 <button
                     onClick={() => setShowFilter(!showFilter)}
@@ -362,4 +360,4 @@ const FilterGroup = ({ title, items = [], selected, onSelect }) => {
     );
 };
 
-export default MovieGrid;
+export default FavouriteMovies;

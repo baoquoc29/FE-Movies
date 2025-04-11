@@ -19,5 +19,13 @@ export class PaymentService extends baseService {
         }).toString();
        return  this.post('api/v1/payments',params)
     }
+    buyVip = (username,duration) => {
+        const params = new URLSearchParams({
+            username: username,
+            duration: duration,
+        }).toString();
+        return  this.post('api/v1/payments/buy-vip',params)
+    }
+
 }
 export const paymentService = new PaymentService ();

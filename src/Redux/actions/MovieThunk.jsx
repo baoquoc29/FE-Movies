@@ -156,3 +156,58 @@ export const genresMovies = () => async (dispatch) => {
         throw error;
     }
 };
+export const getAllActor = (param) => async (dispatch) => {
+    try {
+        const res = await movieService.getAllActor(param);
+        if (res && res.data) {
+            dispatch({
+                type: "ACTOR",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error;
+    }
+};
+export const getAllMovieByActor = (actorId) => async (dispatch) => {
+    try {
+        const res = await movieService.getAllMovieByActor(actorId);
+        if (res && res.data) {
+            dispatch({
+                type: "MOVIE_ACTOR",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error;
+    }
+};
+
+export const getActorById = (actorId) => async (dispatch) => {
+    try {
+        const res = await movieService.getActorByActorId(actorId);
+        if (res && res.data) {
+            dispatch({
+                type: "MOVIE_ACTOR",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error;
+    }
+};

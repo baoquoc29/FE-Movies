@@ -14,6 +14,8 @@ import WatchingMovie from "../pages/watching/WatchingMovie";
 import MovieGrid from "../components/movie-grid/MovieGrid";
 import FavoriteMovies from "../pages/FavoriteMovies";
 import VipPackages from "../pages/membership/VipPackages";
+import ActorGird from "../components/actor/ActorGrid";
+import ActorDetail from "../components/actor/ActorDetail";
 
 export function AppRouter() {
     return (
@@ -28,6 +30,9 @@ export function AppRouter() {
                 <Route path="/favortie" element={<FavoriteMovies />} />
                 <Route path="/membership" element={<VipPackages />} />
                 <Route path="/search/:keyword" element={<MovieGrid />} />
+                <Route path="/search/country/:nation" element={<MovieGrid />} />
+                <Route path="/actors" element={<ActorGird />} />
+                <Route path="/actor/practice/:key" element={<ActorDetail />} />
             </Routes>
             <Footer /> {/* Đặt Footer ở ngoài Routes */}
         </>

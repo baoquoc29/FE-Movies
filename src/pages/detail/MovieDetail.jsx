@@ -90,7 +90,10 @@ const MovieDetail = () => {
     };
     const [replyVisible, setReplyVisible] = useState({});
     const [replyInputs, setReplyInputs] = useState({}); // lưu nội dung các phản hồi nhập vào theo index
-
+    const [userData, setUserData] = useState(() => {
+        const savedUser = localStorage.getItem('USER_LOGIN');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
 
     const { slug } = useParams();
     const [movie, setMovie] = useState(null);
@@ -517,11 +520,16 @@ const MovieDetail = () => {
                                 <Button icon={<CommentOutlined/>} onClick={scrollToComments}>
                                     Bình luận
                                 </Button>
-                                {status ? (
+
+                                {!userData ? (
                                     <Button
-                                        icon={<StarOutlined style={{ color: '#faad14' }} />}
-                                        onClick={() => message.info('Bạn đã đánh giá phim này rồi')}
+                                        icon={<StarOutlined />}
+                                        onClick={() => alert('Vui lòng đăng nhập để đánh giá phim')}
                                     >
+                                        Đánh giá phim
+                                    </Button>
+                                ) : status ? (
+                                    <Button icon={<StarOutlined style={{ color: '#faad14' }} />}>
                                         Đã đánh giá
                                     </Button>
                                 ) : (
@@ -532,6 +540,7 @@ const MovieDetail = () => {
                                         Đánh giá phim
                                     </Button>
                                 )}
+
                             </div>
                         </div>
                         <Col xs={24} lg={24} className="movie-tabs">

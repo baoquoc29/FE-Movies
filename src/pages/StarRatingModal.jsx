@@ -20,7 +20,6 @@ const StarRatingModal = ({ visible, onClose,movieId,title,ratingAvg,totalRating 
             setLoading(true);
             const result = await dispatch(addRating(movieId, rating, reviewText));
             console.log(reviewText);
-
             if (result === "Success") {
                 alert('Đánh giá của bạn đã được gửi thành công!');
                 window.location.reload();

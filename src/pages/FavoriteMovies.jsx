@@ -39,7 +39,7 @@ const FavouriteMovies = () => {
                     keyword: keyword || '',
                     country: selectedFilters.country || '',
                     releaseYear: selectedFilters.releaseYear || '',
-                    genre: selectedFilters.genre || '',
+                    genreId: selectedFilters.genre || '',
                     page: pagination.current,
                     size: pagination.pageSize
                 };

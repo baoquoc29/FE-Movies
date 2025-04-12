@@ -8,20 +8,27 @@ import defaultAvatar from '../../assets/avt.jpg';
 import { FaUser, FaHeart, FaList, FaMoneyBillWave, FaSignOutAlt } from 'react-icons/fa';
 import ChangePasswordModal from "../../pages/account/ChangePasswordModal";
 import SearchBar from "./SearchBar";
-import {searchMovies, moviesNew, moviesPopular, moviesTopRated} from "../../Redux/actions/MovieThunk";
+import {searchMovies, moviesNew, moviesPopular, moviesTopRated,countryMovies} from "../../Redux/actions/MovieThunk";
 import {useDispatch} from "react-redux";
 import {getUserByUsername} from "../../Redux/actions/UserThunk";
-const headerNav = [
-    { display: 'Trang chủ', path: '/' },
-    { display: 'Chủ đề', path: '/movie' },
-    { display: 'Hội viên', path: '/membership' },
-    { display: 'Diễn viên', path: '/tv' },
-    { display: 'Quốc gia', path: '/tv' },
-    { display: 'Thành viên', path: '/#' }
-];
-
 const Header = () => {
+    const [countries, setCountries] = useState([]);
+    const headerNav = [
+        { display: 'Trang chủ', path: '/' },
+        { display: 'Chủ đề', path: '/movie' },
+        { display: 'Hội viên', path: '/membership' },
+        {
+            display: 'Quốc gia',
+            path: '/#',
+            dropdown: countries.length > 0 ? countries.map((country) => ({
+                display: country,
+            })) : []
+        },
+        { display: 'Diễn viên', path: '/tv' },
+        { display: 'Thành viên', path: '/#' }
+    ];
     const { pathname } = useLocation();
+    const [activeDropdown, setActiveDropdown] = useState(null);
     const headerRef = useRef(null);
     const active = headerNav.findIndex(e => e.path === pathname);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -37,6 +44,7 @@ const Header = () => {
     });
     const [user, setUser] = useState({});
     const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
     useEffect(() => {
         const getList = async () => {
             try {
@@ -55,7 +63,24 @@ const Header = () => {
                 setLoading(false);
             }
         };
-
+        const getCountries = async () => {
+            try {
+                setLoading(true);
+                let response = await dispatch(countryMovies());
+                if (response) {
+                    setCountries(response);
+                } else {
+                    setError('Dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error("Đã xảy ra lỗi:", error);
+                setError(error.message);
+            }
+            finally {
+                setLoading(false);
+            }
+        };
+        getCountries();
         getList();
     }, []);
     useEffect(() => {
@@ -167,12 +192,31 @@ const Header = () => {
                 <div className="header__wrap container">
                     <div className="logo">
                         <img src={logo} alt="logo"/>
-                        <Link to="/">MF</Link>
+                        <Link to="/">Movies Faster</Link>
                     </div>
                     <SearchBar data={data} />
                     <ul className="header__nav">
                         {headerNav.map((e, i) => (
-                            <li key={i} className={i === active ? 'active' : ''}>
+                            <li
+                                key={i}
+                                className={i === active ? 'active' : ''}
+                                style={{position: 'relative'}}
+                                onClick={() => {
+                                    if (e.display === 'Quốc gia') {
+                                        setActiveDropdown(activeDropdown === 'Quốc gia' ? null : 'Quốc gia');
+                                    }
+                                    if(e.display === 'Trang chủ'){
+                                        window.location.href = '/';
+                                    }
+                                    if(e.display === 'Hội viên'){
+                                        window.location.href = '/membership';
+                                    }
+                                    if(e.display === 'Diễn viên'){
+                                        window.location.href = '/actors';
+                                    }
+
+                                }}
+                            >
                                 {e.display === 'Thành viên' ? (
                                     userData ? (
                                         <div className="dropdown">
@@ -199,7 +243,8 @@ const Header = () => {
                                                         color: 'red',
                                                         fontWeight: 'bold'
                                                     }}>
-                                                        VIP còn đến: {new Date(user.vipExpireDate).toLocaleDateString('vi-VN')}
+                                                        VIP còn
+                                                        đến: {new Date(user.vipExpireDate).toLocaleDateString('vi-VN')}
                                                     </div>
                                                 )}
                                                 <Link to="#" onClick={toggleChangePasswordModal}
@@ -230,13 +275,74 @@ const Header = () => {
                                         </a>
                                     )
                                 ) : (
-                                    <Link to={e.path}>
-                                        {e.display}
-                                    </Link>
+                                    <>
+                                        {/* Add the clickable button for displaying dropdown */}
+                                        <button
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: 'white',
+                                                fontSize: '16px',
+                                                cursor: 'pointer',
+                                                display: 'inline-block',
+                                            }}
+                                            onClick={() => {
+                                                if (e.display === 'Quốc gia') {
+                                                    setActiveDropdown(activeDropdown === 'Quốc gia' ? null : 'Quốc gia');
+                                                }
+                                            }}
+                                        >
+                                            {e.display} {e.display === 'Quốc gia' && e.dropdown && ' ▾'}
+                                        </button>
+
+                                        {/* Hiển thị dropdown nếu là "Quốc gia" và có dropdown */}
+                                        {e.display === 'Quốc gia' && e.dropdown && activeDropdown === 'Quốc gia' && (
+                                            <div
+                                                className="dropdown-menu"
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '100%',
+                                                    left: 0,
+                                                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                                    borderRadius: '6px',
+                                                    padding: '8px 0',
+                                                    backgroundColor: 'black',
+                                                    minWidth: '160px',
+                                                    zIndex: 1000
+                                                }}
+                                            >
+                                                {e.dropdown.map((child, idx) => (
+                                                    <Link
+                                                        key={idx}
+                                                        href={child.path}
+                                                        className="dropdown-item"
+                                                        to={`/search/country/${encodeURIComponent(child.display)}`}
+                                                        style={{
+                                                            display: 'block',
+                                                            padding: '8px 16px',
+                                                            textDecoration: 'none',
+                                                            fontSize: '14px',
+                                                            color: 'white',
+                                                            transition: 'background 0.3s',
+                                                            whiteSpace: 'nowrap'
+                                                        }}
+                                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                        onClick={() => {
+                                                            setActiveDropdown(null);
+                                                        }}
+                                                    >
+                                                        {child.display}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </li>
                         ))}
                     </ul>
+
                 </div>
             </div>
 

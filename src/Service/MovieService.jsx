@@ -34,7 +34,7 @@ export class MovieService extends baseService {
                        keyword = '',
                        country = '',
                        releaseYear = '',
-                       genre = '',
+                       genreId = '',
                        page = 1,
                        size = ''
                    } = {}) => {
@@ -43,7 +43,7 @@ export class MovieService extends baseService {
             ...(keyword && { keyword }),
             ...(country && { country }),
             ...(releaseYear && { releaseYear }),
-            ...(genre && { genre }),
+            ...(genreId && { genreId }),
             page,
             size
         };
@@ -72,6 +72,31 @@ export class MovieService extends baseService {
         return this.get(`api/v1/movies/releaseYear`,false);
     }
 
+    getAllActor = ({
+                       page = 1,
+                       size = ''
+                   } = {}) => {
+        const params = {
+            page,
+            size
+        };
+
+        // Chuyển thành URLSearchParams và tự động loại bỏ các giá trị rỗng
+        const queryParams = new URLSearchParams();
+
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== '') {
+                queryParams.append(key, value);
+            }
+        }
+        return this.get(`api/v1/movies/actors?${queryParams.toString()}`,false);
+    }
+    getAllMovieByActor = (actorId) => {
+        return this.get(`api/v1/movies/find/${actorId}`,false);
+    }
+    getActorByActorId = (actorId) => {
+        return this.get(`api/v1/movies/actors/${actorId}`,false);
+    }
 
 }
 export const movieService = new MovieService ();

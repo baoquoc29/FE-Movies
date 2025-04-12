@@ -3,15 +3,19 @@ import { Link } from 'react-router-dom';
 import Button from '../button/Button';
 import { FaPlay, FaHeart, FaInfoCircle } from 'react-icons/fa';
 import React, { useState, useRef, useEffect } from 'react';
-
+import {check,pushFavourite,removeFavourite} from '../../Redux/actions/FavouriteThunk';
+import {getStatus} from "../../Redux/actions/RatingThunk";
+import {useDispatch} from "react-redux";
+import {message} from "antd";
 const MovieCard = (props) => {
     const item = props.item;
     const link =  item.slug;
     const bg = item.poster_path || item.backdrop_path;
-
+    const dispatch = useDispatch();
     const [showPopover, setShowPopover] = useState(false);
     const cardRef = useRef(null);
     const [popoverPosition, setPopoverPosition] = useState('left_ref');
+    const [liked, setLiked] = useState(false);
 
     useEffect(() => {
         if (!showPopover || !cardRef.current) return;
@@ -32,8 +36,49 @@ const MovieCard = (props) => {
             setPopoverPosition('bottom_ref');
         }
     }, [showPopover]);
+    useEffect(() => {
+        if (!item?.id) return;
+        const checkFvr = async () => {
+            try {
+                const data = await dispatch(check(item.id));
+                if (data) {
+                    setLiked(data);
+                    console.log("✅ Check favourite:", data);
+                } else {
+                    console.warn("⚠️ Không có dữ liệu yêu thích.");
+                }
+            } catch (error) {
+                console.error("❌ Lỗi khi kiểm tra yêu thích:", error);
+            }
+        };
 
-
+        checkFvr();
+    }, [dispatch, item?.id]);
+    const handleAddFavorite = async () => {
+        try {
+            const movieId = item.id;
+            if (!liked) {
+                const response = await dispatch(pushFavourite(movieId));
+                if (response === "Success") {
+                    message.success('Đã thêm vào mục yêu thích!');
+                    setLiked(true);
+                } else {
+                    message.warning(response || 'Không thể thêm vào mục yêu thích.');
+                }
+            } else {
+                const response = await dispatch(removeFavourite(movieId));
+                if (response === "Success") {
+                    message.success('Đã xóa khỏi mục yêu thích!');
+                    setLiked(false);
+                } else {
+                    message.warning(response || 'Không thể xóa khỏi mục yêu thích.');
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            message.error('Lỗi khi thêm yêu thích.');
+        }
+    };
     return (
         <div
             className="movie-card-wrapper"
@@ -64,14 +109,19 @@ const MovieCard = (props) => {
                                 className="watch"
                                 onClick={() => (window.location.href = '/detail/' + item.slug)}
                             >
-                            <FaPlay/> Xem ngay
+                                <FaPlay/> Xem ngay
+                            </button>
+                            <button
+                                className={`like ${liked ? 'liked' : ''}`}
+                                onClick={() => handleAddFavorite()}
+                            >
+                                <FaHeart style={{color: liked ? 'red' : 'white'}}/>
+                                {liked ? ' Đã thích' : ' Thích'}
                             </button>
 
 
-                            <button className="like">
-                                <FaHeart/> Thích
-                            </button>
-                            <button className="details">
+                            <button className="details"
+                                    onClick={() => (window.location.href = '/detail/' + item.slug)}>
                                 <FaInfoCircle/> Chi tiết
                             </button>
                         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams,useLocation } from 'react-router-dom';
 import './movie-grid.scss';
 
 import MovieCard from '../movie-card/MovieCard';
@@ -16,10 +16,12 @@ const MovieGrid = () => {
     const [releaseYears, setReleaseYears] = useState([]);
     const [genres, setGenres] = useState([]);
     const [countries, setCountries] = useState([]);
+
+    const { keyword,nation } = useParams();
     const [selectedFilters, setSelectedFilters] = useState({
         releaseYear: '',
         genre: '',
-        country: ''
+        country: nation || '',
     });
     const [pagination, setPagination] = useState({
         current: 1,
@@ -27,17 +29,22 @@ const MovieGrid = () => {
         total: 0
     });
     const dispatch = useDispatch();
-    const { keyword } = useParams();
-
+    // Khi nation từ URL thay đổi
+    useEffect(() => {
+        setSelectedFilters(prev => ({
+            ...prev,
+            country: nation || '', // Luôn cập nhật country từ URL
+        }));
+    }, [nation]);
     useEffect(() => {
         const getListSearch = async () => {
             try {
                 setLoading(true);
                 const searchParams = {
                     keyword: keyword || '',
-                    country: selectedFilters.country || '',
+                    country: selectedFilters.country  || '',
                     releaseYear: selectedFilters.releaseYear || '',
-                    genre: selectedFilters.genre || '',
+                    genreId: selectedFilters.genre || '',
                     page: pagination.current,
                     size: pagination.pageSize
                 };
@@ -89,7 +96,6 @@ const MovieGrid = () => {
                     const country = response
                         .map(ct => ({ id: ct, name: ct }))
                         .sort((a, b) => a.name === 'Quốc Gia Khác' ? 1 : -1);
-
                     setCountries(country);
                 } else {
                     setError('Dữ liệu không hợp lệ');
@@ -125,8 +131,13 @@ const MovieGrid = () => {
         if (genres.length === 0) getGenres();
         if (countries.length === 0) getCountries();
         if (releaseYears.length === 0) getReleaseYears();
-    }, [keyword, dispatch,selectedFilters,pagination.current]);
-
+    }, [ keyword,
+        dispatch,
+        selectedFilters.country,
+        selectedFilters.releaseYear,
+        selectedFilters.genre,
+        pagination.current,
+        pagination.pageSize]);
     const handleFilterChange = (filterType, value) => {
         setSelectedFilters(prev => ({
             ...prev,
@@ -178,7 +189,13 @@ const MovieGrid = () => {
                  style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                     <FiSearch className="icon"/>
-                    <span>Kết quả tìm kiếm "<strong>{keyword}</strong>"</span>
+                    <span>
+  {nation
+      ? <>Phim <strong>{nation}</strong></>
+      : <>Kết quả tìm kiếm "<strong>{keyword}</strong>"</>}
+</span>
+
+
                 </div>
 
                 <button
@@ -248,7 +265,6 @@ const MovieGrid = () => {
                                 borderRadius: '9999px',
                                 cursor: 'pointer',
                             }}
-                            onClick={applyFilters}
                         >
                             Lọc kết quả ➜
                         </button>

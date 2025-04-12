@@ -16,6 +16,7 @@ import FavoriteMovies from "../pages/FavoriteMovies";
 import VipPackages from "../pages/membership/VipPackages";
 import ActorGird from "../components/actor/ActorGrid";
 import ActorDetail from "../components/actor/ActorDetail";
+import TopicGenre from "../pages/TopicGenre";
 
 export function AppRouter() {
     return (
@@ -31,7 +32,9 @@ export function AppRouter() {
                 <Route path="/membership" element={<VipPackages />} />
                 <Route path="/search/:keyword" element={<MovieGrid />} />
                 <Route path="/search/country/:nation" element={<MovieGrid />} />
+                <Route path="/search/genre/:topic" element={<MovieGrid />} />
                 <Route path="/actors" element={<ActorGird />} />
+                <Route path="/genre" element={<TopicGenre />} />
                 <Route path="/actor/practice/:key" element={<ActorDetail />} />
             </Routes>
             <Footer /> {/* Đặt Footer ở ngoài Routes */}

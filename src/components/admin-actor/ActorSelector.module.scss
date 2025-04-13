@@ -1,0 +1,74 @@
+.actorSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px;
+  
+    .buttonGroup {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+  
+    .dialogContent {
+      padding-top: 16px !important;
+    }
+  
+    .formFields {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+  
+    .searchField {
+      margin-bottom: 16px;
+    }
+  
+    .actorResults {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+  
+      .noResults {
+        text-align: center;
+        padding: 16px;
+      }
+    }
+  
+    .actorList {
+      border-radius: 4px;
+      overflow: hidden;
+  
+      .listHeader {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+        padding: 12px;
+        font-weight: 500;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #e0e0e0;
+      }
+  
+      .listItem {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+        padding: 12px;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+  
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  
+    .emptyState {
+      padding: 24px;
+      text-align: center;
+      color: #757575;
+    }
+  }

@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.admin-layout {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+  font-family: 'Roboto', sans-serif !important;
+  
+  input,
+  button,
+  select,
+  textarea {
+    font-family: inherit !important;
+  }
+  
+  &__wrapper {
+    flex: 1;
+    margin-left: 260px;
+    transition: all 0.3s ease;
+    min-height: 100vh;
+    background-color: #f9fafb;
+
+    &.collapsed {
+      margin-left: 70px;
+    }
+  }
+
+  &__main {
+    margin-top: 70px;
+  }
+} 

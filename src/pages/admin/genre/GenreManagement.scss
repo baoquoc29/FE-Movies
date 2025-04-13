@@ -1,0 +1,96 @@
+.genre-container-admin {
+  color: #111827;
+  min-height: 100vh;
+  padding: 24px;
+
+  .genre-header-admin {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  
+  }
+  .button-wrapper {
+    width: 100%;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  
+  .custom-button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 5px;
+      background-color: #1677ff; // Màu primary giống AntD
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+      svg {
+        font-size: 16px;
+      }
+  
+      &:hover {
+        background-color: #4096ff;
+      }
+  
+      &:active {
+        background-color: #0958d9;
+      }
+  
+      &:disabled {
+        background-color: #d6e4ff;
+        cursor: not-allowed;
+      }
+    }
+  }
+  .genre-card-admin {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+
+    .search-container-admin {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 8px 12px;
+      background-color: #fafafa;
+      transition: all 0.3s ease;
+  
+      &:focus-within {
+        border-color: #4096ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
+        background-color: #fff;
+      }
+  
+      .search-icon {
+        color: #555;
+        font-size: 16px;
+        margin-right: 8px;
+      }
+  
+      .input-custom {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+        font-size: 14px;
+        color: #000;
+  
+        &::placeholder {
+          color: #aaa;
+        }
+      }
+    }
+  }
+}
+
+
+

@@ -1,0 +1,48 @@
+.formContainer {
+    background-color: #fff; // Đảm bảo màu trắng
+    width: 100%; // Thêm width 100%
+  }
+  
+  .formSection {
+    padding: 24px;
+  }
+  
+  .sectionTitle {
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  
+  .switchContainer {
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  
+  .errorText {
+    color: #d32f2f;
+    font-size: 0.7rem;
+    margin-top: 4px;
+  }
+  
+  .requiredField {
+    color: #d32f2f;
+  }
+  
+  // Thêm style cho grid container
+  .gridContainer {
+    width: 100%;
+    margin: 0;
+  }
+  .containerFormMovie {
+    width: 500px;
+  }

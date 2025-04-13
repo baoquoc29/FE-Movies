@@ -681,7 +681,7 @@ const WatchingMovie = () => {
                                             value={commentText}
                                             onChange={(e) => setCommentText(e.target.value)}
                                             placeholder="Viết bình luận..."
-                                            maxLength={1000}
+                                            maxLength={255}
                                             rows={4}
                                             style={{
                                                 width: '100%',
@@ -719,7 +719,7 @@ const WatchingMovie = () => {
                                             {/* Right: Count & Send */}
                                             <div className="right-controls" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span className="char-count" style={{ color: '#aaa' }}>
-                    {commentText.length}/1000
+                    {commentText.length}/255
                 </span>
                                                 <Button
                                                     className="send-button"
@@ -889,7 +889,7 @@ const WatchingMovie = () => {
                                                             }))}
                                                             placeholder="Viết phản hồi..."
                                                             rows={3}
-                                                            maxLength={1000}
+                                                            maxLength={255}
                                                             showCount
                                                             style={{
                                                                 color: '#fff',

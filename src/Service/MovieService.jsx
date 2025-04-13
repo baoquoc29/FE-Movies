@@ -98,5 +98,9 @@ export class MovieService extends baseService {
         return this.get(`api/v1/movies/actors/${actorId}`,false);
     }
 
+    getMoviePropose = (genreId,movieId) => {
+        return this.get(`api/v1/movies/propose/${genreId}/${movieId}`,false);
+    }
+
 }
 export const movieService = new MovieService ();

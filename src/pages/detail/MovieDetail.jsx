@@ -15,10 +15,10 @@ import {
     WarningOutlined, EyeOutlined, EyeInvisibleOutlined, HeartFilled
 } from '@ant-design/icons';
 import './MovieDetail.scss';
-import {moviesSlug} from '../../Redux/actions/MovieThunk';
+import {getMoviePropose, moviesSlug} from '../../Redux/actions/MovieThunk';
 import {episodeSlug} from '../../Redux/actions/EpisodeThunk';
 import {commentDetailSlug, commentBySlug, pushComment, totalComment} from '../../Redux/actions/CommentThunk';
-import {check,pushFavourite,removeFavourite} from '../../Redux/actions/FavouriteThunk';
+import {check, getFavourite, pushFavourite, removeFavourite} from '../../Redux/actions/FavouriteThunk';
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -104,6 +104,8 @@ const MovieDetail = () => {
     const [visibleSpoilers, setVisibleSpoilers] = useState(new Set());
     const [checkFavourite, setCheckFavourite] = useState(false);
     const [status,setStatus] = useState(false);
+    const [moviePropose, setMoviePropose] = useState([]);
+    const [movieGallery, setMovieGallery] = useState([]);
     useEffect(() => {
         const fetchMovie = async () => {
             try {
@@ -163,6 +165,32 @@ const MovieDetail = () => {
                 console.error("❌ Lỗi khi kiểm tra yêu thích:", error);
             }
         };
+        const fetchMoviePropose = async () => {
+            try {
+                const data = await dispatch(getMoviePropose(movie.genres[0]?.id,movie.id));
+                if (data) {
+                    setMoviePropose(data.content);
+                    console.log("✅ Movie data:", data);
+                } else {
+                    console.warn("⚠️ Không có dữ liệu phim.");
+                }
+            } catch (error) {
+                console.error("❌ Lỗi khi lấy chi tiết phim:", error);
+            }
+        };
+        const fetchMovieGallery = async () => {
+            try {
+                const data = await dispatch(getFavourite());
+                if (data) {
+                    setMovieGallery(data.content);
+                    console.log("✅ Movie data:", data);
+                } else {
+                    console.warn("⚠️ Không có dữ liệu phim.");
+                }
+            } catch (error) {
+                console.error("❌ Lỗi khi lấy chi tiết phim:", error);
+            }
+        };
         const fetchCheckStatus = async () => {
             try {
                 const data = await dispatch(getStatus(movie.id));
@@ -176,10 +204,11 @@ const MovieDetail = () => {
                 console.error("Không thể tải tổng số bình luận:", error);
             }
         };
-
+        fetchMoviePropose();
         fetchCheckStatus();
         fetchTotalComment();
         checkFvr();
+        fetchMovieGallery();
     }, [dispatch, movie?.id]);
     const handleReplySubmit = async (index) => {
         const content = replyText[index];
@@ -187,7 +216,6 @@ const MovieDetail = () => {
         const commentId = parentComment.id;
         const movieId = movie.id; // lấy từ comment hiện có
         const isShow = isSpoiler ? 1 : 0;
-
         if (!parentComment || !commentId || !movieId) {
             message.error('Không thể xác định comment gốc hoặc ID phim');
             return;
@@ -200,23 +228,28 @@ const MovieDetail = () => {
 
         try {
             const result = await dispatch(pushComment(content, movieId, commentId, isShow));
-
             message.success('Phản hồi đã được gửi!');
 
-            // Reset input phản hồi
-            setReplyInputs(prev => ({
-                ...prev,
-                [index]: '',
+            // Cập nhật replyCount của comment cha
+            setComments(prev => prev.map(comment => {
+                if (comment.id === commentId) {
+                    return {
+                        ...comment,
+                        replyCount: (comment.replyCount || 0) + 1
+                    };
+                }
+                return comment;
             }));
-            setReplies(prev => {
-                const existingReplies = prev[commentId] || [];
-                return {
-                    ...prev,
-                    [commentId]: [result, ...existingReplies]
-                };
-            });
 
-            cancelReply();
+            // Cập nhật replies
+            setReplies(prev => ({
+                ...prev,
+                [commentId]: [result, ...(prev[commentId] || [])]
+            }));
+
+            // Reset các state
+            setReplyInputs(prev => ({ ...prev, [index]: '' }));
+            setReplyingTo(null);
         } catch (error) {
             console.error('Lỗi khi gửi phản hồi:', error);
             message.error('Gửi phản hồi thất bại!');
@@ -254,15 +287,21 @@ const MovieDetail = () => {
     const toggleReplyVisibility = async (commentId, index) => {
         const isVisible = replyVisible[index];
 
-        if (!isVisible && !replies[commentId]) {
-            try {
-                const data = await dispatch(commentDetailSlug(commentId));
-                setReplies(prev => ({
-                    ...prev,
-                    [commentId]: data,
-                }));
-            } catch (err) {
-                console.error('Lỗi khi lấy phản hồi:', err);
+        if (!isVisible) {
+            if (!replies[commentId]) {
+                try {
+                    const data = await dispatch(commentDetailSlug(commentId));
+                    setReplies(prev => ({
+                        ...prev,
+                        [commentId]: data || [], // Đảm bảo luôn là mảng
+                    }));
+                } catch (err) {
+                    console.error('Lỗi khi lấy phản hồi:', err);
+                    setReplies(prev => ({
+                        ...prev,
+                        [commentId]: [], // Fallback về mảng rỗng nếu có lỗi
+                    }));
+                }
             }
         }
 
@@ -303,6 +342,12 @@ const MovieDetail = () => {
             }
             return newSet;
         });
+    };
+    const handleMovieClick = (movieSlug) => {
+        // Ví dụ chuyển hướng đến trang chi tiết phim
+        window.location.href = `/detail/${movieSlug}`;
+
+
     };
 
     const renderCommentContent = (comment) => {
@@ -365,6 +410,7 @@ const MovieDetail = () => {
                 </div>
             );
         }
+
         return (
             <div style={{
                 position: 'relative',
@@ -400,7 +446,7 @@ const MovieDetail = () => {
     return (
         <Layout className="movie-detail">
             <div className="movie-header-background">
-                <img src={movie.thumbnailUrl} alt="" className="backdrop-image"/>
+                <img src={movie.posterUrl} alt="" className="backdrop-image"/>
             </div>
 
             <StarRatingModal
@@ -571,18 +617,24 @@ const MovieDetail = () => {
                                             </div>
                                         </div>
                                     </TabPane>
+
                                     <TabPane tab={<span className="tab-label">Gallery</span>} key="2">
                                     <div className="tab-content">
-                                            <div className="gallery-grid">
-                                                <div className="gallery-item">
-                                                    <img src="https://via.placeholder.com/200x300" alt="Gallery 1" />
-                                                </div>
-                                                <div className="gallery-item">
-                                                    <img src="https://via.placeholder.com/200x300" alt="Gallery 2" />
-                                                </div>
-                                                <div className="gallery-item">
-                                                    <img src="https://via.placeholder.com/200x300" alt="Gallery 3" />
-                                                </div>
+                                            <div className="recommendations">
+                                                {movieGallery.length > 0 &&  userData  ? (
+
+                                                    movieGallery.map((movie, index) => (
+
+                                                        <div className="recommendation-item" key={index}
+                                                             onClick={() => handleMovieClick(movie.slug)}
+                                                        >
+                                                            <img src={movie.posterUrl} alt={movie.title} />
+                                                            <div className="recommendation-title">{movie.title}</div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div>Còn trống hãy đăng nhập mà thêm vào nhé :3</div>
+                                                )}
                                             </div>
                                         </div>
                                     </TabPane>
@@ -611,18 +663,16 @@ const MovieDetail = () => {
                                     <TabPane tab={<span className="tab-label">Đề xuất</span>} key="4">
                                         <div className="tab-content">
                                             <div className="recommendations">
-                                                <div className="recommendation-item">
-                                                    <img src="https://via.placeholder.com/150x225" alt="Movie 1" />
-                                                    <div className="recommendation-title">Phim đề xuất 1</div>
-                                                </div>
-                                                <div className="recommendation-item">
-                                                    <img src="https://via.placeholder.com/150x225" alt="Movie 2" />
-                                                    <div className="recommendation-title">Phim đề xuất 2</div>
-                                                </div>
-                                                <div className="recommendation-item">
-                                                    <img src="https://via.placeholder.com/150x225" alt="Movie 3" />
-                                                    <div className="recommendation-title">Phim đề xuất 3</div>
-                                                </div>
+                                                {moviePropose.length > 0 ? (
+                                                    moviePropose.map((movie, index) => (
+                                                        <div className="recommendation-item" key={index}  onClick={() => handleMovieClick(movie.slug)}>
+                                                            <img src={movie.posterUrl} alt={movie.title} />
+                                                            <div className="recommendation-title">{movie.title}</div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div>Không có đề xuất nào.</div>
+                                                )}
                                             </div>
                                         </div>
                                     </TabPane>
@@ -696,7 +746,7 @@ const MovieDetail = () => {
                                                         }))}
                                                         placeholder="Viết phản hồi..."
                                                         rows={3}
-                                                        maxLength={1000}
+                                                        maxLength={255}
                                                         showCount
                                                         style={{
                                                             color: '#fff',
@@ -773,7 +823,7 @@ const MovieDetail = () => {
                                                         position: 'relative',
                                                     }}
                                                 >
-                                                    {replies[comment.id].map((reply, replyIndex) => (
+                                                    {(replies[comment.id] || []).map((reply, replyIndex) => (
                                                         <div
                                                             key={replyIndex}
                                                             className="reply-item"

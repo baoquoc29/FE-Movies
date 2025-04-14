@@ -17,10 +17,10 @@ const MovieGrid = () => {
     const [genres, setGenres] = useState([]);
     const [countries, setCountries] = useState([]);
 
-    const { keyword,nation } = useParams();
+    const { keyword,nation,topic } = useParams();
     const [selectedFilters, setSelectedFilters] = useState({
         releaseYear: '',
-        genre: '',
+        genre: topic || '' ,
         country: nation || '',
     });
     const [pagination, setPagination] = useState({
@@ -33,9 +33,15 @@ const MovieGrid = () => {
     useEffect(() => {
         setSelectedFilters(prev => ({
             ...prev,
-            country: nation || '', // Luôn cập nhật country từ URL
+            country: nation || '',
         }));
     }, [nation]);
+    useEffect(() => {
+        setSelectedFilters(prev => ({
+            ...prev,
+            genre: topic || '',
+        }));
+    }, [topic]);
     useEffect(() => {
         const getListSearch = async () => {
             try {
@@ -190,9 +196,20 @@ const MovieGrid = () => {
                 <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                     <FiSearch className="icon"/>
                     <span>
-  {nation
-      ? <>Phim <strong>{nation}</strong></>
-      : <>Kết quả tìm kiếm "<strong>{keyword}</strong>"</>}
+{topic ? (
+    <>
+        Chủ đề: <strong>{genres.find(g => g.id === Number(topic))?.name || 'Không rõ'}</strong>
+    </>
+) : nation ? (
+    <>
+        Phim <strong>{nation}</strong>
+    </>
+) : (
+    <>
+        Kết quả tìm kiếm "<strong>{keyword}</strong>"
+    </>
+)}
+
 </span>
 
 

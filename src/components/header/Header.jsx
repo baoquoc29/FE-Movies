@@ -214,6 +214,9 @@ const Header = () => {
                                     if(e.display === 'Diễn viên'){
                                         window.location.href = '/actors';
                                     }
+                                    if(e.display === 'Chủ đề'){
+                                        window.location.href = '/genre';
+                                    }
 
                                 }}
                             >

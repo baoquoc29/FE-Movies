@@ -19,6 +19,7 @@ import AdminLayout from '../layouts/AdminLayout';
 import AdminDashboard from '../pages/admin/dashboard/AdminDashBoard';
 import MovieManagement from '../pages/admin/movie/MovieManagement';
 import CreateMovie from '../pages/admin/movie/create/CreateMovie';
+import TopicGenre from "../pages/TopicGenre";
 
 export function AppRouter() {
     return (
@@ -29,19 +30,21 @@ export function AppRouter() {
             element={
               <>
                 <Header />
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/detail/:slug" element={<MovieDetail />} />
-                        <Route path="/watch/:slug/:ep" element={<WatchingMovie />} />
-                        <Route path="/payment" element={<DepositScreen />} />
-                        <Route path="/result" element={<PaymentResult />} />
-                        <Route path="/favortie" element={<FavoriteMovies />} />
-                        <Route path="/membership" element={<VipPackages />} />
-                        <Route path="/search/:keyword" element={<MovieGrid />} />
-                        <Route path="/search/country/:nation" element={<MovieGrid />} />
-                        <Route path="/actors" element={<ActorGird />} />
-                        <Route path="/actor/practice/:key" element={<ActorDetail />} />
-                    </Routes>
+                  <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/detail/:slug" element={<MovieDetail />} />
+                      <Route path="/watch/:slug/:ep" element={<WatchingMovie />} />
+                      <Route path="/payment" element={<DepositScreen />} />
+                      <Route path="/result" element={<PaymentResult />} />
+                      <Route path="/favortie" element={<FavoriteMovies />} />
+                      <Route path="/membership" element={<VipPackages />} />
+                      <Route path="/search/:keyword" element={<MovieGrid />} />
+                      <Route path="/search/country/:nation" element={<MovieGrid />} />
+                      <Route path="/search/genre/:topic" element={<MovieGrid />} />
+                      <Route path="/actors" element={<ActorGird />} />
+                      <Route path="/genre" element={<TopicGenre />} />
+                      <Route path="/actor/practice/:key" element={<ActorDetail />} />
+                  </Routes>
                 <Footer />
               </>
 

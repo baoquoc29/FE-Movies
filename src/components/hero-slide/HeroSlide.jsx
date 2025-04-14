@@ -16,7 +16,7 @@ const HeroSlide = () => {
     useEffect(() => {
         const getMovies = async () => {
             try {
-                const response = await dispatch(moviesNew(1, 5));
+                const response = await dispatch(moviesNew(3, 5));
                 
                 if (response && response.content && Array.isArray(response.content)) {
                     setMovieItems(response.content);
@@ -137,13 +137,22 @@ const HeroSlideItem = props => {
                     ))}
                 </div>
 
-                <p style={{fontSize: '15px', lineHeight: '1.6'}}
-                   dangerouslySetInnerHTML={{__html: item.description}}>
-                </p>
+                <p
+                    style={{
+                        fontSize: '15px',
+                        lineHeight: '1.6',
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 3, // Giới hạn số dòng muốn hiển thị
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}
+                    dangerouslySetInnerHTML={{__html: item.description}}
+                ></p>
                 <div style={{marginTop: '20px'}}>
                     <Button
                         onClick={() => {
-                                navigate('/detail/' + item.slug);
+                            navigate('/detail/' + item.slug);
                         }}
                     >
                         Xem ngay

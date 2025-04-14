@@ -211,3 +211,22 @@ export const getActorById = (actorId) => async (dispatch) => {
         throw error;
     }
 };
+
+export const getMoviePropose = (genreId,movieId) => async (dispatch) => {
+    try {
+        const res = await movieService.getMoviePropose(genreId,movieId);
+        if (res && res.data) {
+            dispatch({
+                type: "MOVIE_PROPOSE",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error;
+    }
+};

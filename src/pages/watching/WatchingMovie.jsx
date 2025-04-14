@@ -262,9 +262,7 @@ const WatchingMovie = () => {
             try {
                 const isShow = isSpoiler ? 1 : 0;
 
-                const result = await dispatch(
-                    pushComment(commentText, episodeData.movieResponse.id, null, isShow)
-                );
+                const result = await dispatch(pushComment(commentText, episodeData.movieResponse.id, null, isShow));
 
                 // Vì pushComment trả về res.data nên result chính là commentFromServer
                 if (result) {
@@ -291,15 +289,22 @@ const WatchingMovie = () => {
     const toggleReplyVisibility = async (commentId, index) => {
         const isVisible = replyVisible[index];
 
-        if (!isVisible && !replies[commentId]) {
-            try {
-                const data = await dispatch(commentDetailSlug(commentId));
-                setReplies(prev => ({
-                    ...prev,
-                    [commentId]: data,
-                }));
-            } catch (err) {
-                console.error('Lỗi khi lấy phản hồi:', err);
+        // Nếu đang mở và chưa có dữ liệu reply thì fetch
+        if (!isVisible) {
+            if (!replies[commentId]) {
+                try {
+                    const data = await dispatch(commentDetailSlug(commentId));
+                    setReplies(prev => ({
+                        ...prev,
+                        [commentId]: data || [], // Đảm bảo luôn là mảng
+                    }));
+                } catch (err) {
+                    console.error('Lỗi khi lấy phản hồi:', err);
+                    setReplies(prev => ({
+                        ...prev,
+                        [commentId]: [], // Fallback về mảng rỗng nếu có lỗi
+                    }));
+                }
             }
         }
 
@@ -327,22 +332,28 @@ const WatchingMovie = () => {
 
         try {
             const result = await dispatch(pushComment(content, movieId, commentId, isShow));
-
             message.success('Phản hồi đã được gửi!');
 
-            // Reset input phản hồi
-            setReplyInputs(prev => ({
-                ...prev,
-                [index]: '',
+            // Cập nhật replyCount của comment cha
+            setComments(prev => prev.map(comment => {
+                if (comment.id === commentId) {
+                    return {
+                        ...comment,
+                        replyCount: (comment.replyCount || 0) + 1
+                    };
+                }
+                return comment;
             }));
-            setReplies(prev => {
-                const existingReplies = prev[commentId] || [];
-                return {
-                    ...prev,
-                    [commentId]: [result, ...existingReplies]
-                };
-            });
-            cancelReply();
+
+            // Cập nhật replies
+            setReplies(prev => ({
+                ...prev,
+                [commentId]: [result, ...(prev[commentId] || [])]
+            }));
+
+            // Reset các state
+            setReplyInputs(prev => ({ ...prev, [index]: '' }));
+            setReplyingTo(null);
         } catch (error) {
             console.error('Lỗi khi gửi phản hồi:', error);
             message.error('Gửi phản hồi thất bại!');
@@ -670,7 +681,7 @@ const WatchingMovie = () => {
                                             value={commentText}
                                             onChange={(e) => setCommentText(e.target.value)}
                                             placeholder="Viết bình luận..."
-                                            maxLength={1000}
+                                            maxLength={255}
                                             rows={4}
                                             style={{
                                                 width: '100%',
@@ -708,7 +719,7 @@ const WatchingMovie = () => {
                                             {/* Right: Count & Send */}
                                             <div className="right-controls" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span className="char-count" style={{ color: '#aaa' }}>
-                    {commentText.length}/1000
+                    {commentText.length}/255
                 </span>
                                                 <Button
                                                     className="send-button"
@@ -878,7 +889,7 @@ const WatchingMovie = () => {
                                                             }))}
                                                             placeholder="Viết phản hồi..."
                                                             rows={3}
-                                                            maxLength={1000}
+                                                            maxLength={255}
                                                             showCount
                                                             style={{
                                                                 color: '#fff',
@@ -954,7 +965,7 @@ const WatchingMovie = () => {
                                                                     position: 'relative',
                                                                 }}
                                                             >
-                                                                {replies[comment.id].map((reply, replyIndex) => (
+                                                                {(replies[comment.id] || []).map((reply, replyIndex) => (
                                                                     <div
                                                                         key={replyIndex}
                                                                         className="reply-item"

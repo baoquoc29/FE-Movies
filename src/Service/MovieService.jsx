@@ -98,17 +98,21 @@ export class MovieService extends baseService {
         return this.get(`api/v1/movies/actors/${actorId}`,false);
     }
 
+    getMoviePropose = (genreId,movieId) => {
+        return this.get(`api/v1/movies/propose/${genreId}/${movieId}`,false);
+    }
+
     adminGetAllMovie = (params) => {
         const filteredParams = new URLSearchParams();
-    
+
         for (const [key, value] of (params || new URLSearchParams()).entries()) {
             if (value !== null && value !== undefined && value !== '') {
                 filteredParams.append(key, value);
             }
         }
-    
+
         console.log(filteredParams.toString()); // In ra chuỗi query đúng
-    
+
         return this.get(`api/v1/movies/all?${filteredParams.toString()}`, true);
     }
 

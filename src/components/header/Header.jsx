@@ -11,6 +11,8 @@ import SearchBar from "./SearchBar";
 import {searchMovies, moviesNew, moviesPopular, moviesTopRated,countryMovies} from "../../Redux/actions/MovieThunk";
 import {useDispatch} from "react-redux";
 import {getUserByUsername} from "../../Redux/actions/UserThunk";
+import { FaBell } from 'react-icons/fa';
+
 const Header = () => {
     const [countries, setCountries] = useState([]);
     const headerNav = [

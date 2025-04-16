@@ -84,7 +84,8 @@ export function ActorSelector({ actors, onChange }) {
   const handleSelectActor = (actor) => {
     onChange([...actors, { 
         id: actor.id, 
-        name: actor.name, 
+        name: actor.name,
+        profile: actor.profileUrl,
         roleName: "", // Thay character bằng roleName
     }])
     setIsSelectDialogOpen(false)
@@ -346,8 +347,8 @@ export function ActorSelector({ actors, onChange }) {
               <div style={{ width: 50, height: 50, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {actor.profile && (
                   <img
-                    src={URL.createObjectURL(actor.profile)}
-                    alt={actor.name}
+                      src={actor.profile}
+                      alt={actor.name}
                     style={{
                       width: 40,
                       height: 40,

@@ -59,7 +59,7 @@ export class MovieService extends baseService {
 
         return this.get(`api/v1/movies/search?${queryParams.toString()}`, false);
     };
-
+    // Nho them page,size khi merge
     getAllGenres = (page, size) => {
         const params = new URLSearchParams({
             page: page,

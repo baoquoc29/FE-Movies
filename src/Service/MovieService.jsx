@@ -60,8 +60,12 @@ export class MovieService extends baseService {
         return this.get(`api/v1/movies/search?${queryParams.toString()}`, false);
     };
 
-    getAllGenres = () => {
-        return this.get(`api/v1/genres`,false);
+    getAllGenres = (page, size) => {
+        const params = new URLSearchParams({
+            page: page,
+            size: size,
+        }).toString();
+        return this.get(`api/v1/genres?${params}`,false);
     }
 
     getAllCountry = () => {
@@ -115,6 +119,18 @@ export class MovieService extends baseService {
 
         return this.get(`api/v1/movies/all?${filteredParams.toString()}`, true);
     }
+    getAllActorNoPage = () => {
+        return this.get(`api/v1/movies/actors/all`, false);
+    }
+    createMovie = (request) =>{
+        return this.post(`api/v1/movies/create`, request);
+    }
+    updateMovie = (id, request) =>{
+        return this.put(`api/v1/movies/update/${id}`, request);
+    }
 
+    deleteMovie = (id) =>{
+        return this.delete(`api/v1/movies/delete/${id}`);
+    }
 }
 export const movieService = new MovieService ();

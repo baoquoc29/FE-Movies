@@ -11,8 +11,8 @@ export const loginUser = (username, password) => async (dispatch) => {
         const res = await userService.login(username, password);
         console.log(res);
         if (res.data && res.data.accessToken) {
-            const { accessToken, username,fullName,balance } = res.data;  // Direct destructuring
-            const userDetails = { username,fullName,balance };
+            const { accessToken, username,fullName,balance, email, role } = res.data;  // Direct destructuring
+            const userDetails = { username,fullName,balance, email, role }; 
             console.log(userDetails);
             localStorage.setItem(TOKEN, accessToken);
             localStorage.setItem(USER_LOGIN, JSON.stringify(userDetails));

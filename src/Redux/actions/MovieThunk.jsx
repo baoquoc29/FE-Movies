@@ -140,7 +140,7 @@ export const releaseYearMovies = () => async (dispatch) => {
 
 export const genresMovies = () => async (dispatch) => {
     try {
-        const res = await movieService.getAllGenres();
+        const res = await movieService.getAllGenres(1, 1000);
         if (res && res.data) {
             dispatch({
                 type: "GENRES",

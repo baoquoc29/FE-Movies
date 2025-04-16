@@ -115,7 +115,7 @@ const ImageUpload = ({
               fileInputRef.current?.click()
             }}
           >
-            Change
+            Thay đổi
           </Button>
         </Box>
       )}

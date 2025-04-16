@@ -3,18 +3,21 @@ import {
   MdDashboard,
   MdMovie,
   MdList,
-  MdPersonOutline,
-  MdLockOutline,
-  MdSettings,
+
   MdMenu,
   MdChevronRight,
-  MdAdd
+  MdAdd,
+  MdHome,
+  MdLogout
 } from 'react-icons/md';
 import './sidebar.scss';
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
-
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/'; // Redirect to home page after logout
+  };
   const menuItems = [
     {
       title: 'Quản lý Phim',
@@ -50,19 +53,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       title: 'Tài khoản',
       items: [
         {
-          path: '/admin/profile',
-          name: 'Thông tin cá nhân',
-          icon: <MdPersonOutline />
+          path: '/',
+          name: 'Trang chủ',
+          icon: <MdHome />
         },
         {
-          path: '/admin/change-password',
-          name: 'Đổi mật khẩu',
-          icon: <MdLockOutline />
-        },
-        {
-          path: '/admin/settings',
-          name: 'Cài đặt',
-          icon: <MdSettings />
+          name: 'Đăng xuất',
+          icon: <MdLogout />
         }
       ]
     }
@@ -116,6 +113,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 key={item.path}
                 to={item.path}
                 className={`sidebar__item ${location.pathname === item.path ? 'active' : ''}`}
+                onClick={item.name === 'Đăng xuất' ? handleLogout : null}
               >
                 {item.icon}
                 {!isCollapsed && <span>{item.name}</span>}

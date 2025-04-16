@@ -20,50 +20,54 @@ import AdminDashboard from '../pages/admin/dashboard/AdminDashBoard';
 import MovieManagement from '../pages/admin/movie/MovieManagement';
 import CreateMovie from '../pages/admin/movie/create/CreateMovie';
 import TopicGenre from "../pages/TopicGenre";
+import AdminMovieDetail from '../pages/admin/movie/detail/AdminMovieDetail';
+import PrivateRoute from './PrivateRoute';
 
 export function AppRouter() {
-    return (
-        <Routes>
-          {/* User Routes with Header and Footer */}
-          <Route
-            path="/*"
-            element={
-              <>
-                <Header />
-                  <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/detail/:slug" element={<MovieDetail />} />
-                      <Route path="/watch/:slug/:ep" element={<WatchingMovie />} />
-                      <Route path="/payment" element={<DepositScreen />} />
-                      <Route path="/result" element={<PaymentResult />} />
-                      <Route path="/favortie" element={<FavoriteMovies />} />
-                      <Route path="/membership" element={<VipPackages />} />
-                      <Route path="/search/:keyword" element={<MovieGrid />} />
-                      <Route path="/search/country/:nation" element={<MovieGrid />} />
-                      <Route path="/search/genre/:topic" element={<MovieGrid />} />
-                      <Route path="/actors" element={<ActorGird />} />
-                      <Route path="/genre" element={<TopicGenre />} />
-                      <Route path="/actor/practice/:key" element={<ActorDetail />} />
-                  </Routes>
-                <Footer />
-              </>
-
-            }
-          />
-          {/* Admin Routes with AdminLayout  */}
-          <Route
-           path="/admin/*"
-           element={
-             <AdminLayout>
-               <Routes>
-                 <Route path="/dashboard" element={<AdminDashboard />} />
-                 <Route path="/genres" element={<GenreManagement />} />
-                 <Route path="/movies" element= {<MovieManagement/>}/>
-                 <Route path="/movies/create" element = {<CreateMovie/>}/>
-               </Routes>
-             </AdminLayout>
-           }
-          />
-        </Routes>
-      );
+  return (
+    <Routes>
+      {/* User Routes with Header and Footer */}
+      <Route
+        path="/*"
+        element={
+          <>
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/detail/:slug" element={<MovieDetail />} />
+              <Route path="/watch/:slug/:ep" element={<WatchingMovie />} />
+              <Route path="/payment" element={<DepositScreen />} />
+              <Route path="/result" element={<PaymentResult />} />
+              <Route path="/favortie" element={<FavoriteMovies />} />
+              <Route path="/membership" element={<VipPackages />} />
+              <Route path="/search/:keyword" element={<MovieGrid />} />
+              <Route path="/search/country/:nation" element={<MovieGrid />} />
+              <Route path="/search/genre/:topic" element={<MovieGrid />} />
+              <Route path="/actors" element={<ActorGird />} />
+              <Route path="/genre" element={<TopicGenre />} />
+              <Route path="/actor/practice/:key" element={<ActorDetail />} />
+            </Routes>
+            <Footer />
+          </>
+        }
+      />
+      {/* Admin Routes with AdminLayout */}
+      <Route
+        path="/admin/*"
+        element={
+          <PrivateRoute >
+            <AdminLayout>
+              <Routes>
+                <Route path="/dashboard" element={<AdminDashboard />} />
+                <Route path="/genres" element={<GenreManagement />} />
+                <Route path="/movies" element={<MovieManagement />} />
+                <Route path="/movies/create" element={<CreateMovie />} />
+                <Route path="/movies/detail/:slug" element={<AdminMovieDetail />} />
+              </Routes>
+            </AdminLayout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
 }

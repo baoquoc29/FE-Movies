@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Sidebar from '../components/sidebar/Sidebar';
 import AdminHeader from '../components/header/AdminHeader';
 import './adminLayout.scss';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const AdminLayout = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -15,6 +16,7 @@ const AdminLayout = ({ children }) => {
           {children}
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 };

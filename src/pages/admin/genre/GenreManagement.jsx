@@ -382,12 +382,31 @@ const GenreManagement = () => {
                         }
                         sx={{
                             mt: 2,
+                            '& .MuiInputBase-root': {
+                                border: '1px solid', // Thêm viền cho phần tử bọc ngoài
+                                borderColor: 'divider', // Màu viền từ theme
+                                borderRadius: '4px', // Bo góc
+                                padding: '4px 8px', // Khoảng cách bên trong
+                                outline: 'none', // Loại bỏ viền mặc định của trình duyệt
+                                boxShadow: 'none', // Loại bỏ shadow mặc định
+                            },
+                            '& .MuiSelect-select': {
+                                border: 'none', // Loại bỏ viền của phần tử bên trong
+                                padding: '0', // Khoảng cách bên trong
+                                appearance: 'none', // Loại bỏ mũi tên mặc định
+                            },
+                            '& .MuiInputBase-root:hover': {
+                                borderColor: 'primary.main', // Thay đổi màu viền khi hover
+                            },
+                            '& .MuiInputBase-root:focus-within': {
+                                borderColor: 'primary.main', // Thay đổi màu viền khi focus
+                            },
                             '& .MuiTablePagination-toolbar': {
                                 px: 0,
                                 flexWrap: 'wrap',
                                 justifyContent: 'center',
-                                gap: 1
-                            }
+                                gap: 1,
+                            },
                         }}
                     />
                 )}

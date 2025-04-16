@@ -56,11 +56,6 @@
     }
   }
 
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
 
   .action-button {
     position: relative;
@@ -83,26 +78,9 @@
     }
   }
 
-  .notification-badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 18px;
-    height: 18px;
-    background-color: #ef4444;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 500;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .profile-button {
     display: flex;
     align-items: center;
-    gap: 12px;
     padding: 6px;
     border: none;
     background: transparent;
@@ -122,8 +100,11 @@
     }
 
     .profile-info {
-      text-align: left;
-
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       .name {
         display: block;
         font-size: 14px;
@@ -241,6 +222,7 @@
           height: 40px;
           border-radius: 50%;
           object-fit: cover;
+          margin: 0;
         }
 
         h4 {
@@ -307,3 +289,9 @@
     }
   }
 } 
+.admin-header__actions {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}

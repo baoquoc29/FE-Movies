@@ -11,6 +11,14 @@ export class EpisodeService extends baseService {
     episode = (slug,episodeNumber) => {
         return this.get(`api/v1/episodes/direct/${slug}/${episodeNumber}`,false);
     };
-
+    createEpisode = (data) => {
+        return this.post(`api/v1/episodes/create`,data);
+    };
+    updateEpisode = (episodeId, data) => {
+        return this.put(`api/v1/episodes/update/${episodeId}`,data);
+    };
+    deleteEpisode = (episodeId) => {
+        return this.delete(`api/v1/episodes/delete/${episodeId}`);
+    }
 }
 export const episodeService = new EpisodeService ();

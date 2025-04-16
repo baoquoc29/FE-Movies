@@ -11,17 +11,14 @@ import {
     Box,
     Container,
     OutlinedInput,
-    Snackbar,
-    Alert
 } from "@mui/material"
 import Select from "react-select"
-import styles from "./MovieForm.scss"
+import styles from "./UpdateMovieForm.scss"
 import ImageUpload from "../../../../components/image-upload/ImageUpload"
 import {ActorSelector} from "../../../../components/admin-actor/ActorSelector"
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css";
 import { movieService } from "../../../../Service/MovieService"
-import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 
 const statusOptions = [
@@ -42,9 +39,11 @@ const formSchema = z.object({
     status: z.string().optional(),
     restrictedAccess: z.boolean().default(false),
     genreIds: z.array(z.number()).min(1, "Select at least one genre"),
+    isDeleteThumbnail: z.boolean().default(false),
+    isDeletePoster: z.boolean().default(false),
 })
 
-const CreateMovie = () => {
+const UpdateMovie = ({movie}) => {
     const [thumbnailFile, setThumbnailFile] = useState(null);
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
     const [posterFile, setPosterFile] = useState(null);
@@ -53,7 +52,6 @@ const CreateMovie = () => {
     const [countries, setCountTrys] = useState([]);
     const [genres, setGenres] = useState([]);
     const [actorRequests, setActorRequests] = useState([]);
-    const navigate = useNavigate()
 
     const {
         control,
@@ -76,6 +74,8 @@ const CreateMovie = () => {
             status: "upcoming",
             restrictedAccess: false,
             genreIds: [],
+            isDeleteThumbnail: false,
+            isDeletePoster: false
         }
     })
 
@@ -96,7 +96,25 @@ const CreateMovie = () => {
             console.error("Error fetching genres:", error)
         }
     }
-
+    useEffect(() => {
+        if (movie) {
+            reset({
+                title: movie.title || "",
+                description: movie.description || "",
+                releaseYear: movie.releaseYear || null,
+                duration: movie.duration || null,
+                publisher: movie.publisher || "",
+                director: movie.director || "",
+                country: movie.country || "",
+                status: movie.status || "upcoming",
+                restrictedAccess: movie.restrictedAccess || false,
+                genreIds: movie.genres?.map((genre) => genre.id) || [],
+            });
+            setThumbnailPreview(movie.thumbnailUrl || null);
+            setPosterPreview(movie.posterUrl || null);
+            setActorRequests(movie.actors || []);
+        }
+    }, [movie, reset]);
     useEffect(() => {
         fetchCountries();
         fetchGenres();
@@ -105,13 +123,24 @@ const CreateMovie = () => {
     const onSubmit = async (data) => {
         setIsSubmitting(true)
         try {
+            const genreIds = data.genreIds || [];
+            const currentGenreIds = movie.genres?.map(g => g.id) || [];
+            const deleteIds = currentGenreIds.filter(id => !genreIds.includes(id));
+            const addIds = genreIds.filter(id => !currentGenreIds.includes(id));
+            console.log(deleteIds);
+            console.log(addIds);
             const formData = new FormData()
             // Append all fields
             Object.keys(data).forEach((key) => {
                 if (key === "genreIds") {
-                    // Gửi genreIds dưới dạng danh sách các phần tử riêng biệt
-                    data[key].forEach((id, index) => {
-                        formData.append(`genreIds[${index}]`, id);
+                    // Gửi các genre cần thêm
+                    addIds.forEach((id, index) => {
+                        formData.append(`genreAddIds[${index}]`, id);
+                    });
+
+                    // Gửi các genre cần xoá
+                    deleteIds.forEach((id, index) => {
+                        formData.append(`genreDeleteIds[${index}]`, id);
                     });
                 } else if (data[key] !== null && data[key] !== undefined) {
                     formData.append(key, data[key]);
@@ -119,42 +148,49 @@ const CreateMovie = () => {
             });
             if (thumbnailFile) formData.append('thumbnail', thumbnailFile)
             if (posterFile) formData.append('poster', posterFile)
-            // Append actorRequests
-            if (actorRequests && actorRequests.length > 0) {
-                actorRequests.forEach((actor, index) => {
-                    // Append các trường dữ liệu của ActorRequest
-                    if (actor.id) formData.append(`actorRequests[${index}].id`, actor.id);
-                    if (actor.name) formData.append(`actorRequests[${index}].name`, actor.name);
-                    if (actor.gender) formData.append(`actorRequests[${index}].gender`, actor.gender);
-                    if (actor.bio) formData.append(`actorRequests[${index}].bio`, actor.bio);
-                    if (actor.birthDate)
-                        formData.append(`actorRequests[${index}].birthDate`, actor.birthDate);
-                    if (actor.roleName)
-                        formData.append(`actorRequests[${index}].roleName`, actor.roleName);
-    
-                    // Append file profile
-                    if (actor.profile) {
-                        formData.append(`actorRequests[${index}].profile`, actor.profile);
-                    }
-                });
-            }
+            // Khởi tạo rỗng nếu null để tránh lỗi
+            const safeActorRequests = Array.isArray(actorRequests) ? actorRequests : [];
+            const safeMovieActors = movie && Array.isArray(movie.actors) ? movie.actors : [];
+            
+            // Lấy danh sách ID từ actorRequests
+            const actorRequestIds = safeActorRequests
+                .map(actor => actor.id)
+                .filter(id => id !== undefined && id !== null);
+            
+            // Tìm các actor trong movie.actors nhưng không có trong actorRequests
+            const actorDeleteIds = safeMovieActors
+                .filter(actor => !actorRequestIds.includes(actor.id))
+                .map(actor => actor.id);
+            
+            // Append actorDeleteIds vào formData nếu có
+            actorDeleteIds.forEach((id, index) => {
+                formData.append(`actorDeleteIds[${index}]`, id);
+            });
+            
+            // Append actorRequests vào formData
+            safeActorRequests.forEach((actor, index) => {
+                if (actor.id) formData.append(`actorRequests[${index}].id`, actor.id);
+                if (actor.name) formData.append(`actorRequests[${index}].name`, actor.name);
+                if (actor.gender) formData.append(`actorRequests[${index}].gender`, actor.gender);
+                if (actor.bio) formData.append(`actorRequests[${index}].bio`, actor.bio);
+                if (actor.birthDate) formData.append(`actorRequests[${index}].birthDate`, actor.birthDate);
+                if (actor.roleName) formData.append(`actorRequests[${index}].roleName`, actor.roleName);
+                if (actor.profile) {
+                    formData.append(`actorRequests[${index}].profile`, actor.profile);
+                }
+            });
             console.log("Form submitted", Object.fromEntries(formData))
-            const response = await movieService.createMovie(formData);
-            if(response.code === 201) {
+            const response = await movieService.updateMovie(movie.id, formData);
+            if(response.code === 200) {
                 // Chuyển hướng sang trang detail với slug phim vừa tạo
                 if(response.data && response.data.slug) {
-                    navigate(`/admin/movies/${response.data.slug}`);
+                    window.location.href = `/admin/movies/detail/${response.data.slug}`
                 } 
-                toast.success('Thêm phim thành công')
-                reset()
-                setThumbnailFile(null)
-                setPosterFile(null)
-                setActorRequests([])
-
+                toast.success('Cập nhật phim thành công')
             }else if(response.code === 401) {
                 toast.error('Ban không có quyền thực hiện hành động này');
             }else{
-                toast.error('error', 'Thêm phim thất bại');
+                toast.error('error', 'Cập nhật phim thất bại');
             }
         } catch (error) {
             console.error("Submission error", error)
@@ -178,16 +214,8 @@ const CreateMovie = () => {
             flexDirection: 'column',
             minHeight: '100vh',
             backgroundColor: '#fff', // Đảm bảo nền trắng
-            padding: '24px 0', // Thêm padding
             color: '#000', // Màu chữ
         }}>
-            <div className="movie-header-admin">
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <span style={{fontWeight: 'bold'}}>Home</span> 
-                    <span style={{marginRight: '10px', marginLeft: '10px'}}> / </span>
-                    <span style={{fontWeight: 'bold', color: '#3b82f6'}}>Thêm phim</span>
-                </div>
-            </div>
             <Box component="form" onSubmit={handleSubmit(onSubmit)} style={{width: '100%'}}>
                 <div style={{
                     width: '100%',
@@ -521,8 +549,10 @@ const CreateMovie = () => {
                                     onImageChange={(file, preview) => {
                                         setThumbnailFile(file)
                                         setThumbnailPreview(preview)
+                                        setValue('isDeleteThumbnail', false)
                                     }}
                                     onImageRemove={() => {
+                                        setValue('isDeleteThumbnail', true)
                                         setThumbnailFile(null)
                                         setThumbnailPreview(null)
                                     }}
@@ -540,8 +570,10 @@ const CreateMovie = () => {
                                     onImageChange={(file, preview) => {
                                         setPosterFile(file)
                                         setPosterPreview(preview)
+                                        setValue('isDeleteThumbnail', false)
                                     }}
                                     onImageRemove={() => {
+                                        setValue('isDeletePoster', true)
                                         setPosterFile(null)
                                         setPosterPreview(null)
                                     }}
@@ -568,7 +600,7 @@ const CreateMovie = () => {
                         color="primary"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'Đang tạo...' : 'Thêm mới'}
+                        {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
                     </Button>
                 </Box>
             </Box>
@@ -576,4 +608,4 @@ const CreateMovie = () => {
 
     )
 }
-export default CreateMovie;
+export default UpdateMovie;

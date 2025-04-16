@@ -32,7 +32,7 @@ const TopicGenre = () => {
                 setLoading(true);
                 const response = await dispatch(genresMovies());
                 if (response) {
-                    setTopics(response); // ✅ set lại dữ liệu vào state
+                    setTopics(response.content); // ✅ set lại dữ liệu vào state
                 } else {
                     setError('Dữ liệu không hợp lệ');
                 }

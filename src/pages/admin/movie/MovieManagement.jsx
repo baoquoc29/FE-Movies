@@ -19,12 +19,17 @@ import {
   InputAdornment,
   CircularProgress,
   Alert,
-  Snackbar
+  Snackbar,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import Select from 'react-select';
 
 import { movieService } from '../../../Service/MovieService';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const GenreManagement = () => {
     const [movies, setMovies] = useState([]);
@@ -36,24 +41,9 @@ const GenreManagement = () => {
     const [loading, setLoading] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null); 
     const [releaseYearSelect, setReleaseYearSelect] = useState(null);
     const [countrySelect, setCountrySelect] = useState(null);
-
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success'
-    });
-
-    const showNotification = (severity, message) => {
-        setSnackbar({ open: true, message, severity });
-    };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar(prev => ({ ...prev, open: false }));
-    };
-
 
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
@@ -99,12 +89,46 @@ const GenreManagement = () => {
             }
     
             const res = await movieService.adminGetAllMovie(params);
-            setMovies(res.data.content || []);
-            setTotalElements(res.data.totalElements || 0);
+            if(res.code == 200){
+                setMovies(res.data.content || []);
+                setTotalElements(res.data.totalElements || 0);
+            }else{
+                toast.error('error', 'Lỗi khi lấy danh sách thể loại');
+            }
+
         } catch (error) {
-            showNotification('error', 'Lỗi khi lấy danh sách thể loại');
+            toast.error('error', 'Lỗi khi lấy danh sách thể loại');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleOpenDeleteModal = (movie) => {
+        setDeleteTarget(movie);
+        setDeleteModalOpen(true);
+    };
+    
+    const handleCloseDeleteModal = () => {
+        setDeleteModalOpen(false);
+        setDeleteTarget(null);
+    };
+    const handleDeleteMovie = async () => {
+        if (!deleteTarget) return;
+    
+        try {
+            setActionLoading(true);
+            const response = await movieService.deleteMovie(deleteTarget.id); // Thay bằng API thực tế
+            if (response.code === 200) {
+                toast.success('Xóa phim thành công!');
+                fetchMovies(); // Cập nhật danh sách phim
+            } else {
+                toast.error(response.message || 'Xóa phim thất bại!');
+            }
+        } catch (error) {
+            toast.error('Lỗi khi xóa phim!');
+        } finally {
+            setActionLoading(false);
+            handleCloseDeleteModal();
         }
     };
     return (
@@ -328,7 +352,7 @@ const GenreManagement = () => {
                         <TableBody>
                             {!loading && movies.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
+                                    <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
                                         <Alert severity="info">
                                             Không có dữ liệu thể loại nào
                                         </Alert>
@@ -376,13 +400,13 @@ const GenreManagement = () => {
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.releaseYear}
+                                            {movie.releaseYear ? movie.releaseYear : 'Đang cập nhật'}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.releaseYear}
+                                            {movie.genres.map((genre) => genre.name).join(', ')}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
@@ -394,13 +418,13 @@ const GenreManagement = () => {
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.viewCount}
+                                            {movie?.viewCount ? movie.viewCount : 0}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.duration}
+                                            {movie?.duration ? movie.duration : 'Đang cập nhật'}
                                         </TableCell>
                                         <TableCell>
                                             <Box sx={{ 
@@ -410,22 +434,28 @@ const GenreManagement = () => {
                                                 alignItems: 'center'
                                             }}>
                                                 <IconButton
-                                                    color="info"
-                                                    size="medium"
-                                                    disabled={actionLoading}
                                                     sx={{
+                                                        color: 'success.main',
                                                         '&:hover': {
-                                                            backgroundColor: 'info.light',
-                                                            color: 'info.contrastText'
+                                                            backgroundColor: 'success.light',
+                                                            color: 'success.contrastText'
                                                         }
                                                     }}
+                                                    color="success"
+                                                    size="medium"
+                                                    disabled={actionLoading}
+                                                    component={Link}
+                                                    to={`/admin/movies/detail/${movie.slug}`}
                                                 >
                                                     <FaEye size={16} />
                                                 </IconButton>
+           
                                                 <IconButton
                                                     color="primary"
                                                     size="medium"
                                                     disabled={actionLoading}
+                                                    component={Link}
+                                                    to={`/admin/movies/detail/${movie.slug}?action=edit`}
                                                     sx={{
                                                         '&:hover': {
                                                             backgroundColor: 'primary.light',
@@ -439,6 +469,7 @@ const GenreManagement = () => {
                                                     color="error"
                                                     size="medium"
                                                     disabled={actionLoading}
+                                                    onClick={() => handleOpenDeleteModal(movie)}
                                                     sx={{
                                                         '&:hover': {
                                                             backgroundColor: 'error.light',
@@ -459,44 +490,75 @@ const GenreManagement = () => {
 
                 {movies.length > 0 && (
                     <TablePagination
-                        component="div"
-                        count={totalElements}
-                        page={currentPage}
-                        onPageChange={handleChangePage}
-                        rowsPerPage={pageSize}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        rowsPerPageOptions={[5, 10, 20, 50]}
-                        labelRowsPerPage="Số hàng mỗi trang:"
-                        labelDisplayedRows={({ from, to, count }) => 
-                            `${from}-${to} của ${count} thể loại`
-                        }
-                        sx={{
-                            mt: 2,
-                            '& .MuiTablePagination-toolbar': {
-                                px: 0,
-                                flexWrap: 'wrap',
-                                justifyContent: 'center',
-                                gap: 1
-                            }
-                        }}
-                    />
+                    component="div"
+                    count={totalElements}
+                    page={currentPage}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={pageSize}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    rowsPerPageOptions={[5, 10, 20, 50]}
+                    labelRowsPerPage="Số hàng mỗi trang:"
+                    labelDisplayedRows={({ from, to, count }) =>
+                        `${from}-${to} của ${count} thể loại`
+                    }
+                    sx={{
+                        mt: 2,
+                        '& .MuiInputBase-root': {
+                            border: '1px solid', // Thêm viền cho phần tử bọc ngoài
+                            borderColor: 'divider', // Màu viền từ theme
+                            borderRadius: '4px', // Bo góc
+                            padding: '4px 8px', // Khoảng cách bên trong
+                            outline: 'none', // Loại bỏ viền mặc định của trình duyệt
+                            boxShadow: 'none', // Loại bỏ shadow mặc định
+                        },
+                        '& .MuiSelect-select': {
+                            border: 'none', // Loại bỏ viền của phần tử bên trong
+                            appearance: 'none', // Loại bỏ mũi tên mặc định
+                        },
+                        '& .MuiInputBase-root:hover': {
+                            borderColor: 'primary.main', // Thay đổi màu viền khi hover
+                        },
+                        '& .MuiInputBase-root:focus-within': {
+                            borderColor: 'primary.main', // Thay đổi màu viền khi focus
+                        },
+                        '& .MuiTablePagination-toolbar': {
+                            px: 0,
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            gap: 1,
+                        },
+                    }}
+                />
                 )}
             </Paper>
-
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            <Dialog
+                open={deleteModalOpen}
+                onClose={handleCloseDeleteModal}
             >
-                <Alert 
-                    onClose={handleCloseSnackbar} 
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+                <DialogTitle>Xác nhận xóa</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Bạn có chắc chắn muốn xóa phim <strong style={{fontWeight: 600}}>{deleteTarget?.title}</strong> không?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={handleCloseDeleteModal}
+                        variant="outlined"
+                        sx={{ textTransform: 'none', borderRadius: 1, px: 3 }}
+                    >
+                        Hủy
+                    </Button>
+                    <Button
+                        onClick={handleDeleteMovie}
+                        variant="contained"
+                        color="error"
+                        sx={{ textTransform: 'none', borderRadius: 1, px: 3 }}
+                    >
+                        Xóa
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

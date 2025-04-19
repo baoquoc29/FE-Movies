@@ -53,7 +53,7 @@ export default function AdminMoviePage() {
     <Box sx={{ width:'100%', mt: 4, backgroundColor:'white', minHeight: '100vh' }}>
       <div className="movie-header-admin-detail" >
           <div style={{display: 'flex', flexDirection: 'row'}}>
-              <span style={{fontWeight: 'bold'}}>Home</span> 
+              <span style={{fontWeight: 'bold'}}>Dashboard</span> 
               <span style={{marginRight: '10px', marginLeft: '10px'}}> / </span>
               <span style={{fontWeight: 'bold', color: '#3b82f6'}}>Chi tiết phim</span>
           </div>

@@ -15,15 +15,14 @@ import {
   IconButton,
   TablePagination,
   Box,
-  Typography,
   InputAdornment,
   CircularProgress,
   Alert,
-  Snackbar
 } from '@mui/material';
 import GenreModal from "./modal/GenreModal";
 import { genreService } from "../../../Service/GenreService";
 import ConfirmDeleteModal from './modal/ConfirmDeleteModal';
+import { toast } from 'react-toastify';
 
 const GenreManagement = () => {
     const [genres, setGenres] = useState([]);
@@ -38,19 +37,6 @@ const GenreManagement = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success'
-    });
-
-    const showNotification = (severity, message) => {
-        setSnackbar({ open: true, message, severity });
-    };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar(prev => ({ ...prev, open: false }));
-    };
 
     const openAddModal = () => {
         setModalMode('add');
@@ -69,15 +55,15 @@ const GenreManagement = () => {
             setActionLoading(true);
             const res = await genreService.createGenre(genre);
             if(res.code === 201){
-                showNotification('success', 'Thêm thể loại thành công');
+                toast.success('Thêm thể loại thành công');
                 fetchGenres();
             } else if (res.code === 401){
-                showNotification('error', 'Vui lòng đăng nhập');
+                toast.error('Vui lòng đăng nhập');
             } else if (res.code === 400) {
-                showNotification('error', res.message);
+                toast.error(res.message);
             }
         } catch (e) {
-            showNotification('error', 'Lỗi mạng');
+            toast.error('Lỗi mạng');
         } finally {
             setActionLoading(false);
             setModalOpen(false);
@@ -89,15 +75,15 @@ const GenreManagement = () => {
             setActionLoading(true);
             const res = await genreService.updateGenre(genre);
             if(res.code === 200){
-                showNotification('success', 'Cập nhật thể loại thành công');
+                toast.success('Cập nhật thể loại thành công');
                 fetchGenres();
             } else if (res.code === 401){
-                showNotification('error', 'Vui lòng đăng nhập');
+                toast.error('Vui lòng đăng nhập');
             } else if (res.code === 400) {
-                showNotification('error', res.message);
+                toast.error(res.message);
             }
         } catch (e) {
-            showNotification('error', 'Lỗi khi cập nhật thể loại');
+            toast.error('Lỗi khi cập nhật thể loại');
         } finally {
             setActionLoading(false);
             setModalOpen(false);
@@ -122,15 +108,15 @@ const GenreManagement = () => {
             setActionLoading(true);
             const res = await genreService.deleteGenre(deleteTarget.id);
             if(res.code === 200){
-                showNotification('success', 'Đã xoá thể loại thành công');
+                toast.success('Đã xoá thể loại thành công');
                 fetchGenres();
             } else if (res.code === 401){
-                showNotification('error', 'Bạn không có quyền');
+                toast.error('Bạn không có quyền');
             } else if (res.code === 400) {
-                showNotification('error', res.message);
+                toast.error(res.message);
             }
         } catch (e) {
-            showNotification('error', 'Lỗi khi xoá thể loại');
+            toast.error('Lỗi khi xoá thể loại');
         } finally {
             setActionLoading(false);
             setDeleteModalOpen(false);
@@ -158,7 +144,7 @@ const GenreManagement = () => {
             setGenres(res.data.content || []);
             setTotalElements(res.data.totalElements || 0);
         } catch (error) {
-            showNotification('error', 'Lỗi khi lấy danh sách thể loại');
+            toast.error('Lỗi khi lấy danh sách thể loại');
         } finally {
             setLoading(false);
         }
@@ -168,7 +154,7 @@ const GenreManagement = () => {
         <div className="genre-container-admin">
             <div className="genre-header-admin">
                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <span style={{fontWeight: 'bold'}}>Home</span> 
+                    <span style={{fontWeight: 'bold'}}>Dashboard</span> 
                     <span style={{marginRight: '10px', marginLeft: '10px'}}> / </span>
                     <span style={{fontWeight: 'bold', color: '#3b82f6'}}>Danh sách thể loại</span>
                 </div>
@@ -428,21 +414,6 @@ const GenreManagement = () => {
                 itemName={deleteTarget?.name}
                 loading={actionLoading}
             />
-
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-                <Alert 
-                    onClose={handleCloseSnackbar} 
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
         </div>
     );
 };

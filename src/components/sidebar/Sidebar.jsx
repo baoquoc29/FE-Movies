@@ -3,12 +3,12 @@ import {
   MdDashboard,
   MdMovie,
   MdList,
-
   MdMenu,
   MdChevronRight,
   MdAdd,
   MdHome,
-  MdLogout
+  MdLogout,
+  MdPersonOutline
 } from 'react-icons/md';
 import './sidebar.scss';
 
@@ -19,6 +19,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     window.location.href = '/'; // Redirect to home page after logout
   };
   const menuItems = [
+    {
+      title: 'Quản lý người dùng',
+      icon: <MdPersonOutline />,
+      children: [
+        {
+          path: '/admin/users',
+          name: 'Danh người dùng',
+          icon: <MdList/>
+        }
+      ]
+    },
     {
       title: 'Quản lý Phim',
       icon: <MdMovie />,

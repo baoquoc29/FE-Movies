@@ -22,6 +22,7 @@ import CreateMovie from '../pages/admin/movie/create/CreateMovie';
 import TopicGenre from "../pages/TopicGenre";
 import AdminMovieDetail from '../pages/admin/movie/detail/AdminMovieDetail';
 import PrivateRoute from './PrivateRoute';
+import UserManagement from '../pages/admin/user/UserManagement';
 
 export function AppRouter() {
   return (
@@ -63,6 +64,7 @@ export function AppRouter() {
                 <Route path="/movies" element={<MovieManagement />} />
                 <Route path="/movies/create" element={<CreateMovie />} />
                 <Route path="/movies/detail/:slug" element={<AdminMovieDetail />} />
+                <Route path="/users" element={<UserManagement />} />
               </Routes>
             </AdminLayout>
           </PrivateRoute>

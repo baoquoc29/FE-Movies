@@ -26,8 +26,6 @@ const AdminHeader = ({ isCollapsed }) => {
   return (
     <header className={`admin-header ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="admin-header__container">
-
-
         <div className="admin-header__actions">
 
           {/* Profile */}

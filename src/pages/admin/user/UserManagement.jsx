@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import './MovieManagement.scss';
-import { FaPlus, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { FiSearch } from "react-icons/fi";
+import { MdLockOutline, MdLockOpen } from "react-icons/md";
 import {
   Table,
   TableBody,
@@ -10,40 +9,28 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   TextField,
   IconButton,
   TablePagination,
   Box,
-  Typography,
   InputAdornment,
   CircularProgress,
-  Alert,
-  DialogTitle,
-  Dialog,
-  DialogContent,
-  DialogActions
+  Alert
 } from '@mui/material';
-import Select from 'react-select';
 
-import { movieService } from '../../../Service/MovieService';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { userService } from '../../../Service/UserService';
+import dayjs from 'dayjs';
 
-const MovieManagement = () => {
-    const [movies, setMovies] = useState([]);
+const UserManagement = () => {
+    const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(5);
     const [totalElements, setTotalElements] = useState(0);
     const [keyword, setKeyword] = useState('');
     const [loading, setLoading] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [deleteTarget, setDeleteTarget] = useState(null); 
-    const [releaseYearSelect, setReleaseYearSelect] = useState(null);
-    const [countrySelect, setCountrySelect] = useState(null);
-    const [years, setYears] = useState([]);
-    const [countries, setCountries] = useState([]);
 
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
@@ -54,136 +41,55 @@ const MovieManagement = () => {
         setCurrentPage(0);
     };
 
-    const getYears = async () => {
-        const response = await movieService.getAllReleaseYear();
-        if(response.code === 200){
-            const yearOptions = response.data.map((year) => ({
-                value: year,
-                label: year,
-            }));
-            setYears(yearOptions);
-        } else{
-            console.log('error', 'Lỗi khi lấy danh sách năm phát hành');
+    const blockUser = async (user) => {
+        try {
+            setActionLoading(true);
+            const res = await userService.blockUser(user.id);
+            if(res.code === 200){
+                toast.success(user.isBlocked ? 'Mở khóa tài khoản người dùng thành công' : 'Khóa tài khoản người dùng thành công');
+                fetchUsers();
+            }else{
+                toast.error('error', 'Lỗi khi khóa người dùng');
+            }
+        } catch (error) {
+            toast.error('error', 'Lỗi khi khóa người dùng');
+        } finally {
+            setActionLoading(false);
         }
     }
-    
-    const getCountries = async () => {
-        const response = await movieService.getAllCountry();
-        if(response.code === 200){
-            const countriesOptions = response.data.map((country) => ({
-                value: country,
-                label: country,
-            }));
-            setCountries(countriesOptions);
-        } else{
-            console.log('error', 'Lỗi khi lấy danh sách các nước');
-        }
-    }
-
     useEffect(() => {
-        getYears();
-        getCountries();
-    },[]);
+        fetchUsers();
+    }, [currentPage, pageSize, keyword]);
 
-    useEffect(() => {
-        fetchMovies();
-    }, [currentPage, pageSize, keyword, releaseYearSelect, countrySelect]);
-
-    const fetchMovies = async () => {
+    const fetchUsers = async () => {
         try {
             setLoading(true);
     
-            const params = new URLSearchParams();
-    
-            if (keyword) params.append('keyword', keyword);
-            params.append('page', currentPage + 1);
-            params.append('size', pageSize);
-    
-            if (releaseYearSelect?.value) {
-                params.append('releaseYear', releaseYearSelect.value);
-            }
-    
-            if (countrySelect?.value) {
-                params.append('country', countrySelect.value);
-            }
-    
-            const res = await movieService.adminGetAllMovie(params);
+            const res = await userService.adminGetAllUser(keyword, currentPage+1, pageSize);
             if(res.code === 200){
-                setMovies(res.data.content || []);
+                setUsers(res.data.content || []);
                 setTotalElements(res.data.totalElements || 0);
             }else{
-                toast.error('error', 'Lỗi khi lấy danh sách phim');
+                toast.error('error', 'Lỗi khi lấy danh sách thể loại');
             }
 
         } catch (error) {
-            toast.error('error', 'Lỗi khi lấy danh sách phim');
+            toast.error('error', 'Lỗi khi lấy danh sách thể loại');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleOpenDeleteModal = (movie) => {
-        setDeleteTarget(movie);
-        setDeleteModalOpen(true);
-    };
-    
-    const handleCloseDeleteModal = () => {
-        setDeleteModalOpen(false);
-        setDeleteTarget(null);
-    };
-    const handleDeleteMovie = async () => {
-        if (!deleteTarget) return;
-    
-        try {
-            setActionLoading(true);
-            const response = await movieService.deleteMovie(deleteTarget.id); // Thay bằng API thực tế
-            if (response.code === 200) {
-                toast.success('Xóa phim thành công!');
-                fetchMovies(); // Cập nhật danh sách phim
-            } else {
-                toast.error(response.message || 'Xóa phim thất bại!');
-            }
-        } catch (error) {
-            toast.error('Lỗi khi xóa phim!');
-        } finally {
-            setActionLoading(false);
-            handleCloseDeleteModal();
-        }
-    };
+
     return (
         <div className="movie-container-admin">
             <div className="movie-header-admin">
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <span style={{fontWeight: 'bold'}}>Dashboard</span> 
                     <span style={{marginRight: '10px', marginLeft: '10px'}}> / </span>
-                    <span style={{fontWeight: 'bold', color: '#3b82f6'}}>Danh sách phim</span>
+                    <span style={{fontWeight: 'bold', color: '#3b82f6'}}>Danh sách người dùng</span>
                 </div>
             </div>
-            
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Button
-                    variant="contained"
-                    startIcon={actionLoading ? <CircularProgress size={14} color="inherit" /> : <FaPlus style={{ fontSize: '0.8rem' }} />}
-                    disabled={actionLoading}
-                    sx={{ 
-                        textTransform: 'none',
-                        '& .MuiButton-startIcon': {
-                            marginRight: '4px'
-                        }
-                    }}
-                >
-            <Link
-                to="/admin/movies/create"
-                style={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    pointerEvents: actionLoading ? 'none' : 'auto',
-                }}
-                >
-                Thêm mới
-            </Link>
-                </Button>
-            </Box>
 
             <Paper sx={{ 
                 p: 3,
@@ -200,7 +106,7 @@ const MovieManagement = () => {
                 }}>
                     <TextField
                         variant="outlined"
-                        placeholder="Nhập tiêu đề phim..."
+                        placeholder="Nhập tên người dùng, tài khoản, email ..."
                         size="small"
                         fullWidth
                         onChange={(e) => setKeyword(e.target.value)}
@@ -219,40 +125,6 @@ const MovieManagement = () => {
                             ),
                         }}
                     />
-
-                    <Box sx={{ minWidth: 150 }}>
-                        <Select
-                            placeholder="Năm phát hành"
-                            options={years}
-                            value={releaseYearSelect}
-                            onChange={setReleaseYearSelect}
-                            isClearable
-                            styles={{
-                                control: (base) => ({
-                                    ...base,
-                                    borderRadius: 8,
-                                    minHeight: 40,
-                                }),
-                            }}
-                        />
-                    </Box>
-
-                    <Box sx={{ minWidth: 150 }}>
-                        <Select
-                            placeholder="Quốc gia"
-                            options={countries}
-                            value={countrySelect}
-                            onChange={setCountrySelect}
-                            isClearable
-                            styles={{
-                                control: (base) => ({
-                                    ...base,
-                                    borderRadius: 8,
-                                    minHeight: 40,
-                                }),
-                            }}
-                        />
-                    </Box>
                 </Box>
 
                 <TableContainer 
@@ -294,7 +166,7 @@ const MovieManagement = () => {
                                 }
                             }}>
                                 <TableCell sx={{ 
-                                    width: 80,
+                                    width: 30,
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
@@ -306,28 +178,35 @@ const MovieManagement = () => {
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Tên phim
+                                    Tên người dùng
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Slug
+                                    Tài khoản
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Đạo diễn
+                                    Email
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Năm ra mắt
+                                    Giới tính
+                                </TableCell>
+                                <TableCell sx={{ 
+                                    color: 'common.white',
+                                    borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+                                    textAlign: 'center'
+                                }}>
+                                    Ngày sinh
                                 </TableCell>
 
                                 <TableCell sx={{ 
@@ -335,41 +214,47 @@ const MovieManagement = () => {
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Thể loại
+                                    Số dư
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Đánh giá
+                                    Ngày tạo
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center'
                                 }}>
-                                    Tổng lượt xem
+                                    Ngày cập nhật
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     borderRight: '1px solid rgba(255, 255, 255, 0.12)',
                                     textAlign: 'center',
-                                    width:100
                                 }}>
-                                    Thời gian mỗi tập (phút)
+                                    Ngày hết hạn gói vip
+                                </TableCell>
+                                <TableCell sx={{ 
+                                    color: 'common.white',
+                                    borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+                                    textAlign: 'center',
+                                }}>
+                                    Trạng thái
                                 </TableCell>
                                 <TableCell sx={{ 
                                     color: 'common.white',
                                     textAlign: 'center',
-                                    width: 120
+                                    width: 100
                                 }}>
                                     Hành động
                                 </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {!loading && movies.length === 0 ? (
+                            {!loading && users.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
                                         <Alert severity="info">
@@ -378,9 +263,9 @@ const MovieManagement = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                movies.map((movie, index) => (
+                                users.map((user, index) => (
                                     <TableRow 
-                                        key={movie.id}
+                                        key={user.id}
                                         hover
                                         sx={{ 
                                             '&:last-child td': { borderBottom: 0 },
@@ -401,49 +286,61 @@ const MovieManagement = () => {
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.title}
+                                            {user.fullName}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.slug}
+                                            {user.username}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.director.length !== 0 ? movie.director : 'Đang cập nhật'}
+                                            {user.email}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.releaseYear ? movie.releaseYear : 'Đang cập nhật'}
+                                            {user?.gender === 0 ? 'Nam': user.gender === 1 ? 'Nữ' : 'Khác'}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.genres.map((genre) => genre.name).join(', ')}
+                                            {user.dateOfBirth ? dayjs(user.dateOfBirth).format('DD/MM/YYYY') : 'Đang cập nhật'}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie.averageRating}
+                                            {user.balance ? user.balance : 0} VNĐ
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie?.viewCount ? movie.viewCount : 0}
+                                            {dayjs(user.createdAt).format('HH:mm:ss DD/MM/YYYY')}
                                         </TableCell>
                                         <TableCell sx={{ 
                                             borderRight: '1px solid',
                                             borderRightColor: 'divider'
                                         }}>
-                                            {movie?.duration ? movie.duration : 'Đang cập nhật'}
+                                            {user.updatedAt ? dayjs(user.updatedAt).format('HH:mm:ss DD/MM/YYYY') : 'Đang cập nhật'}
+                                        </TableCell>
+                                        <TableCell sx={{ 
+                                            borderRight: '1px solid',
+                                            borderRightColor: 'divider'
+                                        }}>
+                                            {user.vipExpiry ?  dayjs(user.vipExpiry).format('DD/MM/YYYY') : 'Đang cập nhật'}
+                                        </TableCell>
+                                        <TableCell sx={{ 
+                                            borderRight: '1px solid',
+                                            borderRightColor: 'divider'
+                                        }}>
+                                            {user.isBlocked ? 'Đã khóa' : 'Đang hoạt động'} 
                                         </TableCell>
                                         <TableCell>
                                             <Box sx={{ 
@@ -452,29 +349,13 @@ const MovieManagement = () => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center'
                                             }}>
-                                                <IconButton
-                                                    sx={{
-                                                        color: 'success.main',
-                                                        '&:hover': {
-                                                            backgroundColor: 'success.light',
-                                                            color: 'success.contrastText'
-                                                        }
-                                                    }}
-                                                    color="success"
-                                                    size="medium"
-                                                    disabled={actionLoading}
-                                                    component={Link}
-                                                    to={`/admin/movies/detail/${movie.slug}`}
-                                                >
-                                                    <FaEye size={16} />
-                                                </IconButton>
            
                                                 <IconButton
                                                     color="primary"
                                                     size="medium"
                                                     disabled={actionLoading}
                                                     component={Link}
-                                                    to={`/admin/movies/detail/${movie.slug}?action=edit`}
+                                                    onClick={() => blockUser(user)}
                                                     sx={{
                                                         '&:hover': {
                                                             backgroundColor: 'primary.light',
@@ -482,21 +363,8 @@ const MovieManagement = () => {
                                                         }
                                                     }}
                                                 >
-                                                    <FaEdit size={16} />
-                                                </IconButton>
-                                                <IconButton
-                                                    color="error"
-                                                    size="medium"
-                                                    disabled={actionLoading}
-                                                    onClick={() => handleOpenDeleteModal(movie)}
-                                                    sx={{
-                                                        '&:hover': {
-                                                            backgroundColor: 'error.light',
-                                                            color: 'error.contrastText'
-                                                        }
-                                                    }}
-                                                >
-                                                    <FaTrash size={16} />
+                                                    {user.isBlocked ? (<MdLockOpen size={16} />) : (<MdLockOutline size={16} />)}
+                                                    
                                                 </IconButton>
                                             </Box>
                                         </TableCell>
@@ -507,7 +375,7 @@ const MovieManagement = () => {
                     </Table>
                 </TableContainer>
 
-                {movies.length > 0 && (
+                {users.length > 0 && (
                     <TablePagination
                     component="div"
                     count={totalElements}
@@ -550,36 +418,8 @@ const MovieManagement = () => {
                 />
                 )}
             </Paper>
-            <Dialog
-                open={deleteModalOpen}
-                onClose={handleCloseDeleteModal}
-            >
-                <DialogTitle>Xác nhận xóa</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        Bạn có chắc chắn muốn xóa phim <strong style={{fontWeight: 600}}>{deleteTarget?.title}</strong> không?
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={handleCloseDeleteModal}
-                        variant="outlined"
-                        sx={{ textTransform: 'none', borderRadius: 1, px: 3 }}
-                    >
-                        Hủy
-                    </Button>
-                    <Button
-                        onClick={handleDeleteMovie}
-                        variant="contained"
-                        color="error"
-                        sx={{ textTransform: 'none', borderRadius: 1, px: 3 }}
-                    >
-                        Xóa
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 };
 
-export default MovieManagement;
+export default UserManagement;

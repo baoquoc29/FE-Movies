@@ -69,8 +69,8 @@ const FavouriteMovies = () => {
             try {
                 setLoading(true);
                 let response = await dispatch(genresMovies());
-                if (response ) {
-                    setGenres(response);
+                if (response.content) {
+                    setGenres(response.content);
                 } else {
                     setError('Dữ liệu không hợp lệ');
                 }

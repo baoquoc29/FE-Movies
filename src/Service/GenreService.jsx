@@ -10,7 +10,7 @@ export class GenreService extends baseService {
             page: page,
             size: size,
         }).toString();
-        return this.get(`api/v1/genres?${params}`, true);
+        return this.get(`api/v1/genres?${params}`, false);
     };
     createGenre = (genre) => {
         return this.post(`api/v1/genres/create`, genre);

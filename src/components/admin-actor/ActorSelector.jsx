@@ -15,7 +15,6 @@ import {
   Paper,
   Typography,
   Box,
-  Grid,
   Select,
   MenuItem,
   FormControl,
@@ -85,7 +84,7 @@ export function ActorSelector({ actors, onChange }) {
     onChange([...actors, { 
         id: actor.id, 
         name: actor.name,
-        profile: actor.profileUrl,
+        profileUrl: actor.profileUrl,
         roleName: "", // Thay character bằng roleName
     }])
     setIsSelectDialogOpen(false)
@@ -345,9 +344,20 @@ export function ActorSelector({ actors, onChange }) {
           {actors.map((actor, index) => (
             <div key={index} className={styles.listItem} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: 50, height: 50, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {actor.profile && (
+                {actor.profile ? (
                   <img
-                      src={actor.profile}
+                      src={URL.createObjectURL(actor.profile)}
+                      alt={actor.name}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ): (
+                  <img
+                      src={actor.profileUrl}
                       alt={actor.name}
                     style={{
                       width: 40,

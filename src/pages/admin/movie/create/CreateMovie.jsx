@@ -10,9 +10,7 @@ import {
     FormLabel,
     Box,
     Container,
-    OutlinedInput,
-    Snackbar,
-    Alert
+    OutlinedInput
 } from "@mui/material"
 import Select from "react-select"
 import styles from "./MovieForm.scss"
@@ -183,7 +181,7 @@ const CreateMovie = () => {
         }}>
             <div className="movie-header-admin">
                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <span style={{fontWeight: 'bold'}}>Home</span> 
+                    <span style={{fontWeight: 'bold'}}>Dashboard</span> 
                     <span style={{marginRight: '10px', marginLeft: '10px'}}> / </span>
                     <span style={{fontWeight: 'bold', color: '#3b82f6'}}>Thêm phim</span>
                 </div>

@@ -23,6 +23,9 @@ import TopicGenre from "../pages/TopicGenre";
 import AdminMovieDetail from '../pages/admin/movie/detail/AdminMovieDetail';
 import PrivateRoute from './PrivateRoute';
 import UserManagement from '../pages/admin/user/UserManagement';
+import ChatBox from "../components/ChatBox";
+import ChatManager from "../pages/admin/ChatManager";
+import ResetPasswordPage from "../components/ResetPasswordPage";
 
 export function AppRouter() {
   return (
@@ -47,12 +50,12 @@ export function AppRouter() {
               <Route path="/actors" element={<ActorGird />} />
               <Route path="/genre" element={<TopicGenre />} />
               <Route path="/actor/practice/:key" element={<ActorDetail />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
             </Routes>
             <Footer />
           </>
         }
       />
-      {/* Admin Routes with AdminLayout */}
       <Route
         path="/admin/*"
         element={
@@ -65,6 +68,8 @@ export function AppRouter() {
                 <Route path="/movies/create" element={<CreateMovie />} />
                 <Route path="/movies/detail/:slug" element={<AdminMovieDetail />} />
                 <Route path="/users" element={<UserManagement />} />
+                <Route path="/messages" element={<ChatManager />} />
+
               </Routes>
             </AdminLayout>
           </PrivateRoute>

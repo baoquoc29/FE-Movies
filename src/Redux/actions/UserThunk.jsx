@@ -8,12 +8,13 @@ import {
 
 export const loginUser = (username, password) => async (dispatch) => {
     try {
-        const res = await userService.login(username, password);
-        console.log(res);
-        if (res.data && res.data.accessToken) {
-            const { accessToken, username,fullName,balance, email, role } = res.data;  // Direct destructuring
-            const userDetails = { username,fullName,balance, email, role }; 
-            console.log(userDetails);
+        const response = await userService.login(username, password);
+        const data = response?.data;
+
+        if (data?.accessToken) {
+            const { id, accessToken, username, fullName, balance, email, role, vipExpireDate } = data;
+            const userDetails = { id, username, fullName, balance, email, vipExpireDate, role };
+
             localStorage.setItem(TOKEN, accessToken);
             localStorage.setItem(USER_LOGIN, JSON.stringify(userDetails));
 
@@ -24,15 +25,17 @@ export const loginUser = (username, password) => async (dispatch) => {
                     token: accessToken
                 }
             });
+
         } else {
-            console.log("Login failed, no token returned");
+            console.log("Login failed: accessToken not found.");
         }
     } catch (error) {
-        // Ensure we handle cases where `error.response` might be undefined
-        const errorMessage = error.response ? error.response.data.message : "An unknown error occurred during login";
-        console.log("Error during login:", errorMessage);
+        const errorMessage = error?.response?.data?.message || "An unknown error occurred during login";
+        console.error("Login Error:", errorMessage);
+        // dispatch({ type: LOGIN_FAILURE, payload: errorMessage }); // optional
     }
 };
+
 export const changePassword = (current, newPassword,confirmPassword) => async (dispatch) => {
     try {
         const res = await userService.changePassword(current, newPassword,confirmPassword);
@@ -81,6 +84,64 @@ export const getUserByUsername = (username) => async (dispatch) => {
                 payload: res.data,
             });
             return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error; // Truyền lỗi cho phần gọi useEffect
+    }
+};
+
+export const getVip = (id) => async (dispatch) => {
+    try {
+        const res = await userService.getUserVip(id);
+
+        if (res && res.data) {
+            dispatch({
+                type: "VIP",
+                payload: res.data,
+            });
+            return res.data;
+        } else {
+            console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error; // Truyền lỗi cho phần gọi useEffect
+    }
+};
+export const sendEmailForgot = (email) => async (dispatch) => {
+    try {
+        const res = await userService.sendResetPassword(email);
+
+        if (res) {
+            dispatch({
+                type: "SEND_EMAIL",
+                payload: res.code,
+            });
+            return res.code;
+        } else {
+            console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
+            throw new Error('Dữ liệu không hợp lệ');
+        }
+    } catch (error) {
+        console.error("Đã xảy ra lỗi:", error);
+        throw error; // Truyền lỗi cho phần gọi useEffect
+    }
+};
+export const resetPassword = (body) => async (dispatch) => {
+    try {
+        const res = await userService.resetPassword(body);
+
+        if (res) {
+            dispatch({
+                type: "RESET_PASSWORD",
+                payload: res.code,
+            });
+            return res.code;
         } else {
             console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
             throw new Error('Dữ liệu không hợp lệ');

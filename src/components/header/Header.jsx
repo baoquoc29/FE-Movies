@@ -45,6 +45,7 @@ const Header = () => {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [user, setUser] = useState({});
+
     const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 
     useEffect(() => {

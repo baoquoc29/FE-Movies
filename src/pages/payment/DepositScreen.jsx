@@ -67,15 +67,6 @@ const DepositScreen = () => {
                             />
                             VNPay
                         </label>
-                        <label>
-                            <input
-                                type="radio"
-                                value="ZaloPay"
-                                checked={paymentMethod === "ZaloPay"}
-                                onChange={handlePaymentMethodChange}
-                            />
-                            ZaloPay
-                        </label>
                     </div>
                 </div>
 

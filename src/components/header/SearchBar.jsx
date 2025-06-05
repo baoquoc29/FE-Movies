@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 const SearchBar = () => {
     const [query, setQuery] = useState("");
+
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

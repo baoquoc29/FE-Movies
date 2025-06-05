@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import { Layout, Row, Col, Button,Tabs, Tag, Empty, Input, message } from 'antd';
 import {
     HeartOutlined,
@@ -20,11 +20,13 @@ import {episodeSlug} from '../../Redux/actions/EpisodeThunk';
 import {commentDetailSlug, commentBySlug, pushComment, totalComment} from '../../Redux/actions/CommentThunk';
 import {check, getFavourite, pushFavourite, removeFavourite} from '../../Redux/actions/FavouriteThunk';
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import dayjs from "dayjs";
+import {decryptId, encryptId} from "../../components/SecurityComponent/cryptoUtils";
 import StarRatingModal from "../StarRatingModal";
 import {getStatus} from "../../Redux/actions/RatingThunk";
+import Swal from 'sweetalert2';
+import {getVip} from "../../Redux/actions/UserThunk";
 const { Content } = Layout;
 const { TextArea } = Input;
 
@@ -106,6 +108,8 @@ const MovieDetail = () => {
     const [status,setStatus] = useState(false);
     const [moviePropose, setMoviePropose] = useState([]);
     const [movieGallery, setMovieGallery] = useState([]);
+    const [vipDate,setVipDate] = useState();
+    const [encryptedId, setEncryptedId] = useState(null);
     useEffect(() => {
         const fetchMovie = async () => {
             try {
@@ -128,6 +132,7 @@ const MovieDetail = () => {
                 console.error("Không thể tải danh sách tập:", error);
             }
         };
+
         const fetchComment = async () => {
             try {
                 const data = await dispatch(commentBySlug(slug));
@@ -210,6 +215,21 @@ const MovieDetail = () => {
         checkFvr();
         fetchMovieGallery();
     }, [dispatch, movie?.id]);
+    useEffect(() => {
+        if (!userData?.id) return; // Không gọi nếu chưa có ID
+
+        const fetchVip = async () => {
+            try {
+                const data = await dispatch(getVip(userData?.id));
+                setVipDate(data);
+            } catch (error) {
+                console.error("Không thể tải vip:", error);
+            }
+        };
+
+        fetchVip();
+    }, [userData?.id]);
+
     const handleReplySubmit = async (index) => {
         const content = replyText[index];
         const parentComment = comments[index]; // hoặc comment hiện tại
@@ -256,7 +276,7 @@ const MovieDetail = () => {
         }
     };
     const handleButtonClick = (episode) => {
-        window.location.href = `/watch/${slug}/${episode}`;
+        window.location.href = `/watch/${slug}/${encryptId(episode)}`;
     };
     const handleAddFavorite = async () => {
         try {
@@ -603,17 +623,51 @@ const MovieDetail = () => {
                                     <TabPane tab={<span className="tab-label">Tập phim</span>} key="1">
                                         <div className="tab-content">
                                             <div className="episode-list">
-                                                {episodes.map((episode) => (
-                                                    <div
-                                                        className="episode-item"
-                                                        key={episode.id}
-                                                        onClick={() => handleButtonClick(episode.episodeNumber)}
-                                                        style={{ cursor: 'pointer' }} // Thêm style này để cho biết đây là phần tử có thể click
-                                                    >
-                                                        <div className="episode-number">Tập {episode.episodeNumber}</div>
-                                                    </div>
-                                                ))}
-
+                                                {episodes.map((episode) => {
+                                                    console.log("vip" + vipDate);
+                                                    const isVipLocked = episode.vip && (vipDate || dayjs(vipDate).isBefore(dayjs(), 'day'));
+                                                    return (
+                                                        <div
+                                                            className="episode-item"
+                                                            key={episode.id}
+                                                            onClick={() => {
+                                                                if (isVipLocked) {
+                                                                    Swal.fire({
+                                                                        title: 'Yêu cầu tài khoản VIP',
+                                                                        text: 'Tài khoản VIP của bạn đã hết hạn hoặc bạn chưa có VIP. Vui lòng gia hạn để xem nội dung này',
+                                                                        icon: 'info',
+                                                                        confirmButtonText: 'Nâng cấp ngay',
+                                                                        showCancelButton: true,
+                                                                        cancelButtonText: 'Để sau'
+                                                                    }).then((result) => {
+                                                                        if (result.isConfirmed) {
+                                                                            window.location.href = 'http://localhost:3000/membership';
+                                                                        }
+                                                                    });
+                                                                } else {
+                                                                    handleButtonClick(episode.episodeNumber);
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                cursor: isVipLocked ? 'not-allowed' : 'pointer',
+                                                                position: 'relative',
+                                                                opacity: isVipLocked ? 0.7 : 1
+                                                            }}
+                                                        >
+                                                            <div className="episode-number">
+                                                                Tập {episode.episodeNumber}
+                                                                {episode.vip && (
+                                                                    <span style={{
+                                                                        marginLeft: '5px',
+                                                                        color: isVipLocked ? '#ff0000' : '#ff5722'
+                                                                    }}>
+                                    {isVipLocked ? '🔐' : '⭐'}
+                                </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     </TabPane>

@@ -21,8 +21,9 @@ import {
     PlusOutlined, UpOutlined, DownOutlined, HeartFilled
 } from '@ant-design/icons';
 import './WatchingMovie.scss';
+import {decryptId, encryptId} from "../../components/SecurityComponent/cryptoUtils";
 import './Comments.scss';
-
+import Swal from 'sweetalert2';
 import {episode, episodeSlug} from "../../Redux/actions/EpisodeThunk";
 import {useDispatch} from "react-redux";
 import {useParams} from "react-router-dom";
@@ -33,6 +34,7 @@ import LoginModal from "../account/LoginModal";
 import RegisterModal from "../account/RegisterModal";
 import {check, pushFavourite} from "../../Redux/actions/FavouriteThunk";
 import { useNavigate } from 'react-router-dom';
+import {getVip} from "../../Redux/actions/UserThunk";
 const { Content } = Layout;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -63,11 +65,13 @@ const WatchingMovie = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [episodes, setEpisodes] = useState([]);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
-    const [activeEpisode, setActiveEpisode] = useState(ep); // Default to episode 2 as active
+    const [activeEpisode, setActiveEpisode] = useState(decryptId(ep)); // Default to episode 2 as active
     const [replies, setReplies] = useState({});
     const [replyVisible, setReplyVisible] = useState({});
     const [replyInputs, setReplyInputs] = useState({}); // lưu nội dung các phản hồi nhập vào theo index
     const [checkFavourite, setCheckFavourite] = useState(false);
+    const [vipDate,setVipDate] = useState();
+
     useEffect(() => {
         if (isCinemaMode) {
             // Hide the main website header
@@ -120,7 +124,7 @@ const WatchingMovie = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const response = await dispatch(episode(slug, ep));
+                const response = await dispatch(episode(slug, decryptId(ep)));
                 setEpisodeData(response);
                 console.log(response);
             } catch (err) {
@@ -148,7 +152,7 @@ const WatchingMovie = () => {
         fetchComment();
         fetchData();
         fetchEpisodes();
-    }, [dispatch, slug, ep]);
+    }, [dispatch, slug, decryptId(ep)]);
     useEffect(() => {
         if (!episodeData.movieResponse?.id) return;
         const fetchTotalComment = async () => {
@@ -184,7 +188,20 @@ const WatchingMovie = () => {
         checkFvr();
     }, [dispatch,episodeData.movieResponse?.id]);
 
+    useEffect(() => {
+        if (!userData?.id) return; // Không gọi nếu chưa có ID
 
+        const fetchVip = async () => {
+            try {
+                const data = await dispatch(getVip(userData?.id));
+                setVipDate(data);
+            } catch (error) {
+                console.error("Không thể tải vip:", error);
+            }
+        };
+
+        fetchVip();
+    }, [userData?.id]);
     console.log(episodeData);
     const handleAddFavorite = async () => {
         try {
@@ -472,7 +489,7 @@ const WatchingMovie = () => {
     };
     const handleButtonClick = (episode) => {
         // Điều hướng tới trang chi tiết của episode trong cùng cửa sổ
-        window.location.href = `/watch/${slug}/${episode}`;
+        window.location.href = `/watch/${slug}/${encryptId(episode)}`;
     };
 
     return (
@@ -511,11 +528,11 @@ const WatchingMovie = () => {
                                 >
                                     {checkFavourite ? 'Đã yêu thích' : 'Yêu thích'}
                                 </Button>
-                                <Button 
-                                    type="text" 
+                                <Button
+                                    type="text"
                                     icon={autoPlay ? <CheckOutlined /> : <PlayCircleOutlined />}
                                     onClick={toggleAutoPlay}
-                                    style={{ 
+                                    style={{
                                         color: autoPlay ? '#52c41a' : 'rgba(255, 255, 255, 0.85)',
                                         background: autoPlay ? 'rgba(82, 196, 26, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                                         borderColor: autoPlay ? '#52c41a' : 'rgba(255, 255, 255, 0.1)'
@@ -525,8 +542,8 @@ const WatchingMovie = () => {
                                 </Button>
                             </>
                         )}
-                        <Button 
-                            type="text" 
+                        <Button
+                            type="text"
                             icon={isCinemaMode ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                             onClick={toggleCinemaMode}
                         >
@@ -570,47 +587,78 @@ const WatchingMovie = () => {
                                                     gap: '12px',
                                                     padding: '16px 0'
                                                 }}>
-                                                    {episodes.map((episode) => (
-                                                        <Tooltip
-                                                            key={episode.episodeNumber}
-                                                            placement="top"
-                                                        >
-                                                            <Button
-                                                                className={`episode-button ${episode.episodeNumber === activeEpisode ? 'active' : ''}`}
-                                                                onClick={() => handleButtonClick(episode.episodeNumber)}
-                                                                style={{
-                                                                    height: 'auto',
-                                                                    padding: '12px',
-                                                                    background: episode.episodeNumber === activeEpisode ? 'rgba(24, 144, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                                                                    border: episode.episodeNumber === activeEpisode ? '1px solid #1890ff' : '1px solid rgba(255, 255, 255, 0.1)',
-                                                                    borderRadius: '8px',
-                                                                    display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                    alignItems: 'center',
-                                                                    gap: '4px',
-                                                                    transition: 'all 0.3s ease',
-                                                                    ':hover': {
-                                                                        background: episode.episodeNumber === activeEpisode ? 'rgba(24, 144, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)',
-                                                                        transform: 'translateY(-2px)'
-                                                                    }
-                                                                }}
+                                                    {episodes.map((episode) => {
+                                                        const isVipLocked = episode.vip && (vipDate || dayjs(vipDate).isBefore(dayjs(), 'day'));
+                                                        return (
+                                                            <Tooltip
+                                                                key={episode.episodeNumber}
+                                                                placement="top"
+                                                                title={isVipLocked ? "Yêu cầu tài khoản VIP" : `Tập ${episode.episodeNumber}`}
                                                             >
-                                                                <span className="episode-number" style={{
-                                                                    color: episode.episodeNumber === activeEpisode ? '#1890ff' : '#fff',
-                                                                    fontWeight: '200',
-                                                                    fontSize: '14px'
-                                                                }}>
-                                                                    Tập {episode.episodeNumber}
-                                                                </span>
-                                                                <span className="episode-duration" style={{
-                                                                    color: episode.episodeNumber === activeEpisode ? 'rgba(24, 144, 255, 0.8)' : 'rgba(255, 255, 255, 0.5)',
-                                                                    fontSize: '12px'
-                                                                }}>
-                                                                    {episode.duration}
-                                                                </span>
-                                                            </Button>
-                                                        </Tooltip>
-                                                    ))}
+                                                                <Button
+                                                                    className={`episode-button ${episode.episodeNumber === activeEpisode ? 'active' : ''}`}
+                                                                    onClick={() => {
+                                                                        if (isVipLocked) {
+                                                                            Swal.fire({
+                                                                                title: 'Yêu cầu tài khoản VIP',
+                                                                                text: 'Tài khoản VIP của bạn đã hết hạn hoặc bạn chưa có VIP. Vui lòng gia hạn để xem nội dung này',
+                                                                                icon: 'info',
+                                                                                confirmButtonText: 'Nâng cấp ngay',
+                                                                                showCancelButton: true,
+                                                                                cancelButtonText: 'Để sau'
+                                                                            }).then((result) => {
+                                                                                if (result.isConfirmed) {
+                                                                                    window.location.href = 'http://localhost:3000/membership';
+                                                                                }
+                                                                            });
+                                                                        } else {
+                                                                            handleButtonClick(episode.episodeNumber);
+                                                                        }
+                                                                    }}
+                                                                    style={{
+                                                                        height: 'auto',
+                                                                        padding: '12px',
+                                                                        background: episode.episodeNumber === activeEpisode ? 'rgba(24, 144, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                                                        border: episode.episodeNumber === activeEpisode ? '1px solid #1890ff' : '1px solid rgba(255, 255, 255, 0.1)',
+                                                                        borderRadius: '8px',
+                                                                        display: 'flex',
+                                                                        flexDirection: 'column',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        transition: 'all 0.3s ease',
+                                                                        ':hover': {
+                                                                            background: episode.episodeNumber === activeEpisode ? 'rgba(24, 144, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)',
+                                                                            transform: isVipLocked ? 'none' : 'translateY(-2px)'
+                                                                        },
+                                                                        cursor: isVipLocked ? 'not-allowed' : 'pointer',
+                                                                        opacity: isVipLocked ? 0.7 : 1
+                                                                    }}
+                                                                >
+                    <span className="episode-number" style={{
+                        color: episode.episodeNumber === activeEpisode ? '#1890ff' : '#fff',
+                        fontWeight: '200',
+                        fontSize: '14px'
+                    }}>
+                        Tập {episode.episodeNumber}
+                        {episode.vip && (
+                            <span style={{
+                                marginLeft: '5px',
+                                color: isVipLocked ? '#ff0000' : '#ff5722'
+                            }}>
+                                {isVipLocked ? '🔐' : '⭐'}
+                            </span>
+                        )}
+                    </span>
+                                                                    <span className="episode-duration" style={{
+                                                                        color: episode.episodeNumber === activeEpisode ? 'rgba(24, 144, 255, 0.8)' : 'rgba(255, 255, 255, 0.5)',
+                                                                        fontSize: '12px'
+                                                                    }}>
+                        {episode.duration}
+                    </span>
+                                                                </Button>
+                                                            </Tooltip>
+                                                        );
+                                                    })}
                                                 </div>
                                             ),
                                         },
@@ -624,19 +672,19 @@ const WatchingMovie = () => {
                             {/* Comments Section */}
                             <div className="comments-container"
                                  style={{
-                                    padding: '24px',
-                                    background: '#1a1a1a',
-                                    borderRadius: '12px',
-                                    color: '#fff',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                                     padding: '24px',
+                                     background: '#1a1a1a',
+                                     borderRadius: '12px',
+                                     color: '#fff',
+                                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
                                  }}>
                                 {/* Header Tabs */}
                                 <div className="comments-header" style={{marginBottom: '24px'}}>
                                     <Tabs activeKey={commentType} onChange={setCommentType}>
                                         <TabPane
                                             tab={
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <CommentOutlined style={{ fontSize: '16px' }} />
+                                                <span style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                                    <CommentOutlined style={{fontSize: '16px'}}/>
                                                     <span>Bình luận</span>
                                                 </span>
                                             }
@@ -669,9 +717,9 @@ const WatchingMovie = () => {
                                                 justifyContent: 'center',
                                                 marginRight: '12px'
                                             }}>
-                                                <UserOutlined style={{ fontSize: '20px', color: '#fff' }} />
+                                                <UserOutlined style={{fontSize: '20px', color: '#fff'}}/>
                                             </div>
-                                            <span className="username" style={{ fontWeight: '500' }}>
+                                            <span className="username" style={{fontWeight: '500'}}>
                 Bình luận với tên <strong>{userData.fullName}</strong>
             </span>
                                         </div>

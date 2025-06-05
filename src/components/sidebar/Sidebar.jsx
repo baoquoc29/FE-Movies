@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
+import {
   MdDashboard,
   MdMovie,
   MdList,
@@ -8,7 +8,7 @@ import {
   MdAdd,
   MdHome,
   MdLogout,
-  MdPersonOutline
+  MdPersonOutline, MdMessage
 } from 'react-icons/md';
 import './sidebar.scss';
 
@@ -25,7 +25,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       children: [
         {
           path: '/admin/users',
-          name: 'Danh người dùng',
+          name: 'Danh sách người dùng',
           icon: <MdList/>
         }
       ]
@@ -54,6 +54,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           path: '/admin/genres',
           name: 'Danh sách thể loại',
           icon: <MdList />
+        }
+      ]
+    },
+    {
+      title: 'Quản lý tin nhắn',
+      icon: <MdMessage />,
+      children: [
+        {
+          path: '/admin/messages',
+          name: 'Tin nhắn',
+          icon: <MdMessage />
         }
       ]
     }

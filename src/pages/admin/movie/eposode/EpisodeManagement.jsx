@@ -15,8 +15,11 @@ import {
     CircularProgress,
     IconButton,
     Box,
+    FormControlLabel,
+    Switch,
+    Typography,
 } from '@mui/material';
-import { FaEdit, FaPlay, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaPlay, FaPlus, FaTrash, FaCrown } from 'react-icons/fa';
 import { episodeService } from '../../../../Service/EpisodeService';
 import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
@@ -38,7 +41,8 @@ const EpisodeManagement = ({ movie }) => {
     } = useForm({
         defaultValues: {
             episodeNumber: '',
-            videoUrl: ''
+            videoUrl: '',
+            vip: false
         }
     });
 
@@ -68,7 +72,7 @@ const EpisodeManagement = ({ movie }) => {
 
     const handleAdd = () => {
         setCurrentEpisode(null);
-        reset({ episodeNumber: '', videoUrl: '' });
+        reset({ episodeNumber: '', videoUrl: '', vip: false });
         setIsDialogOpen(true);
     };
 
@@ -76,7 +80,8 @@ const EpisodeManagement = ({ movie }) => {
         setCurrentEpisode(episode);
         reset({
             episodeNumber: episode.episodeNumber,
-            videoUrl: episode.videoUrl
+            videoUrl: episode.videoUrl,
+            vip: episode.vip || false
         });
         setIsDialogOpen(true);
     };
@@ -113,7 +118,6 @@ const EpisodeManagement = ({ movie }) => {
                 if (response.code === 200) {
                     fetchEpisodes();
                     toast.success('Cập nhật tập phim thành công!');
-                    fetchEpisodes();
                     setIsDialogOpen(false);
 
                 }else {
@@ -125,7 +129,6 @@ const EpisodeManagement = ({ movie }) => {
                 if (response.code === 201) {
                     fetchEpisodes();
                     toast.success('Thêm tập phim thành công!');
-                    fetchEpisodes();
                     setIsDialogOpen(false);
                 }else{
                     toast.error(response.message);
@@ -170,7 +173,8 @@ const EpisodeManagement = ({ movie }) => {
                                 }
                             }}>
                                 <TableCell sx={{ width: '80px' }}>Tập số</TableCell>
-                                <TableCell sx={{ width: '500px' }}>Đường dẫn</TableCell>
+                                <TableCell sx={{ width: '400px' }}>Đường dẫn</TableCell>
+                                <TableCell sx={{ width: '80px' }}>VIP</TableCell>
                                 <TableCell>Ngày tạo</TableCell>
                                 <TableCell>Ngày cập nhật</TableCell>
                                 <TableCell>Hành động</TableCell>
@@ -181,8 +185,17 @@ const EpisodeManagement = ({ movie }) => {
                                 <TableRow key={episode.id}>
                                     <TableCell>{episode?.episodeNumber}</TableCell>
                                     <TableCell>{episode?.videoUrl}</TableCell>
+                                    <TableCell>
+                                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                            {episode?.vip ? (
+                                                <FaCrown style={{ color: '#FFD700', fontSize: '16px' }} />
+                                            ) : (
+                                                <Typography variant="body2" color="text.secondary">-</Typography>
+                                            )}
+                                        </Box>
+                                    </TableCell>
                                     <TableCell>{dayjs(episode.createdAt).format('HH:mm:ss DD/MM/YYYY')}</TableCell>
-                                    <TableCell>{episode?.updatedAt ? dayjs(movie.updatedAt).format('HH:mm:ss DD/MM/YYYY') : "Đang cập nhật"}</TableCell>
+                                    <TableCell>{episode?.updatedAt ? dayjs(episode.updatedAt).format('HH:mm:ss DD/MM/YYYY') : "Đang cập nhật"}</TableCell>
                                     <TableCell>
                                         <Box sx={{
                                             display: 'flex',
@@ -230,7 +243,7 @@ const EpisodeManagement = ({ movie }) => {
             )}
             
             {/* Create/Edit Dialog */}
-            <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+            <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} maxWidth="sm" fullWidth>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <DialogTitle>{currentEpisode ? 'Chỉnh sửa tập phim' : 'Thêm tập phim'}</DialogTitle>
                     <DialogContent>
@@ -272,7 +285,36 @@ const EpisodeManagement = ({ movie }) => {
                                     label="Đường dẫn video"
                                     error={!!errors.videoUrl}
                                     helperText={errors.videoUrl?.message}
+                                    sx={{ mb: 2 }}
                                 />
+                            )}
+                        />
+                        <Controller
+                            name="vip"
+                            control={control}
+                            render={({ field }) => (
+                                <Box sx={{ mt: 2, mb: 1 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={field.value}
+                                                onChange={(e) => field.onChange(e.target.checked)}
+                                                color="primary"
+                                            />
+                                        }
+                                        label={
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <FaCrown style={{ color: field.value ? '#FFD700' : '#ccc', fontSize: '16px' }} />
+                                                <Typography variant="body1">
+                                                    Tập VIP
+                                                </Typography>
+                                            </Box>
+                                        }
+                                    />
+                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, ml: 4 }}>
+                                        Chỉ người dùng VIP mới có thể xem tập này
+                                    </Typography>
+                                </Box>
                             )}
                         />
                     </DialogContent>

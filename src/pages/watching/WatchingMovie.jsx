@@ -588,7 +588,8 @@ const WatchingMovie = () => {
                                                     padding: '16px 0'
                                                 }}>
                                                     {episodes.map((episode) => {
-                                                        const isVipLocked = episode.vip && (vipDate || dayjs(vipDate).isBefore(dayjs(), 'day'));
+                                                        const hasVipExpired = vipDate ? dayjs().isAfter(dayjs(vipDate), 'day') : true;
+                                                        const isVipLocked = episode.vip && hasVipExpired;
                                                         return (
                                                             <Tooltip
                                                                 key={episode.episodeNumber}

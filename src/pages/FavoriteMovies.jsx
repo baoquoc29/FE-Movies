@@ -4,7 +4,7 @@ import '../components/movie-grid/movie-grid.scss';
 
 import MovieCard from '../components/movie-card/MovieCard';
 import { Pagination } from 'antd';
-import {countryMovies, genresMovies, releaseYearMovies, searchMovies} from "../Redux/actions/MovieThunk";
+import {countryMovies, genresMovies, releaseYearMovies} from "../Redux/actions/MovieThunk";
 import {searchFavorite} from "../Redux/actions/FavouriteThunk";
 
 import { useDispatch } from "react-redux";
@@ -22,6 +22,10 @@ const FavouriteMovies = () => {
         releaseYear: '',
         genre: '',
         country: ''
+    });
+    const [userData, setUserData] = useState(() => {
+        const savedUser = localStorage.getItem('USER_LOGIN');
+        return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pagination, setPagination] = useState({
         current: 1,
@@ -44,7 +48,7 @@ const FavouriteMovies = () => {
                     size: pagination.pageSize
                 };
 
-                const response = await dispatch(searchFavorite(searchParams));
+                const response = await dispatch(searchFavorite(userData?.id,searchParams));
 
                 if (response?.content) {
                     setSearchItems(response.content);
@@ -156,8 +160,7 @@ const FavouriteMovies = () => {
                 size: pagination.pageSize
             };
 
-            const response = await dispatch(searchMovies(searchParams));
-
+            const response = await dispatch(searchFavorite(userData?.id,searchParams));
             if (response?.content) {
                 setSearchItems(response.content);
                 setPagination(prev => ({

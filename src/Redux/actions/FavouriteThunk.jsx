@@ -80,9 +80,9 @@ export const check = (movieId) => async (dispatch) => {
     }
 };
 
-export const searchFavorite = (searchParams) => async (dispatch) => {
+export const searchFavorite = (userId,searchParams) => async (dispatch) => {
     try {
-        const res = await favouriteService.movieFavoriteSearch(searchParams);
+        const res = await favouriteService.movieFavoriteSearch(userId,searchParams);
         console.log("searchParams:", searchParams);
 
         if (res && res.data) {

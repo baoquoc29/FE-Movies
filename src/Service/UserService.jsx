@@ -31,7 +31,7 @@ export class UserService extends baseService {
     }
 
     getUserVip = (userId) => {
-        return this.getUserVip(`api/v1/users/${userId}`,true);
+        return this.get(`api/v1/users/status/${userId}`,true);
     }
     sendResetPassword = (email) => {
         return this.get(`api/v1/auth/forgot/${email}`,false);

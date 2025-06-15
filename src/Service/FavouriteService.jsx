@@ -17,7 +17,7 @@ export class FavouriteService extends baseService {
     checkFavorites = (movieId) => {
         return this.get(`api/v1/favorites/check/${movieId}`)
     }
-    movieFavoriteSearch = ({
+    movieFavoriteSearch = (userId,{
                        keyword = '',
                        country = '',
                        releaseYear = '',
@@ -44,7 +44,7 @@ export class FavouriteService extends baseService {
             }
         }
 
-        return this.get(`api/v1/favorites/search?${queryParams.toString()}`);
+        return this.get(`api/v1/favorites/${userId}/search?${queryParams.toString()}`);
     };
 
 }

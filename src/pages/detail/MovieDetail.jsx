@@ -108,8 +108,23 @@ const MovieDetail = () => {
     const [status,setStatus] = useState(false);
     const [moviePropose, setMoviePropose] = useState([]);
     const [movieGallery, setMovieGallery] = useState([]);
-    const [vipDate,setVipDate] = useState();
+    const [vipDate, setVipDate] = useState(null);
     const [encryptedId, setEncryptedId] = useState(null);
+    useEffect(() => {
+        if (!userData?.id) return;
+
+        const fetchVip = async () => {
+            try {
+                const res = await dispatch(getVip(userData.id));
+                console.log("Ngày VIP nhận được:", res); // kiểm tra
+                setVipDate(res); // res là "2026-06-15"
+            } catch (error) {
+                console.error("Không thể tải VIP:", error);
+            }
+        };
+
+        fetchVip();
+    }, [userData?.id]);
     useEffect(() => {
         const fetchMovie = async () => {
             try {
@@ -215,20 +230,6 @@ const MovieDetail = () => {
         checkFvr();
         fetchMovieGallery();
     }, [dispatch, movie?.id]);
-    useEffect(() => {
-        if (!userData?.id) return; // Không gọi nếu chưa có ID
-
-        const fetchVip = async () => {
-            try {
-                const data = await dispatch(getVip(userData?.id));
-                setVipDate(data);
-            } catch (error) {
-                console.error("Không thể tải vip:", error);
-            }
-        };
-
-        fetchVip();
-    }, [userData?.id]);
 
     const handleReplySubmit = async (index) => {
         const content = replyText[index];
@@ -624,8 +625,8 @@ const MovieDetail = () => {
                                         <div className="tab-content">
                                             <div className="episode-list">
                                                 {episodes.map((episode) => {
-                                                    console.log("vip" + vipDate);
-                                                    const isVipLocked = episode.vip && (vipDate || dayjs(vipDate).isBefore(dayjs(), 'day'));
+                                                    const hasVipExpired = vipDate ? dayjs().isAfter(dayjs(vipDate), 'day') : true;
+                                                    const isVipLocked = episode.vip && hasVipExpired;
                                                     return (
                                                         <div
                                                             className="episode-item"
@@ -661,8 +662,8 @@ const MovieDetail = () => {
                                                                         marginLeft: '5px',
                                                                         color: isVipLocked ? '#ff0000' : '#ff5722'
                                                                     }}>
-                                    {isVipLocked ? '🔐' : '⭐'}
-                                </span>
+                  {isVipLocked ? '🔐' : '⭐'}
+                </span>
                                                                 )}
                                                             </div>
                                                         </div>

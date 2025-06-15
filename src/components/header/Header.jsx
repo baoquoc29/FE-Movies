@@ -249,8 +249,7 @@ const Header = () => {
                                                         color: 'red',
                                                         fontWeight: 'bold'
                                                     }}>
-                                                        VIP còn
-                                                        đến: {new Date(user.vipExpireDate).toLocaleDateString('vi-VN')}
+                                                        VIP: {new Date(user.vipExpireDate).toLocaleDateString('vi-VN')}
                                                     </div>
                                                 )}
                                                 <Link to="#" onClick={toggleChangePasswordModal}

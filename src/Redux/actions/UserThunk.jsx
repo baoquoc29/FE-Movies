@@ -98,19 +98,19 @@ export const getVip = (id) => async (dispatch) => {
     try {
         const res = await userService.getUserVip(id);
 
-        if (res && res.data) {
+        if (res.code === 200) {
             dispatch({
-                type: "VIP",
+                type: "VIP_STATUS",
                 payload: res.data,
             });
-            return res.data;
+            return res.data; // để component nhận được
         } else {
-            console.log("Không có dữ liệu trả về từ API tạo URL thanh toán");
+            console.warn("Không có dữ liệu trả về từ API");
             throw new Error('Dữ liệu không hợp lệ');
         }
     } catch (error) {
-        console.error("Đã xảy ra lỗi:", error);
-        throw error; // Truyền lỗi cho phần gọi useEffect
+        console.error("Đã xảy ra lỗi khi gọi API:", error);
+        throw error;
     }
 };
 export const sendEmailForgot = (email) => async (dispatch) => {

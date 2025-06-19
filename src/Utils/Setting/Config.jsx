@@ -7,7 +7,7 @@ export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const DISPLAY_LOADING = 'DISPLAY_LOADING';
 export const HIDE_LOADING = 'HIDE_LOADING';
 
-export const DOMAIN = 'http://localhost:8081'
+export const DOMAIN = 'moviesbackend-h2xu.onrender.com'
 export const TOKEN = 'accessToken'
 
 export const USER_LOGIN = 'USER_LOGIN';

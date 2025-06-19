@@ -53,7 +53,7 @@ export class baseService {
             method: 'GET',
             headers
         };
-
+        console.log(config);
         return Axios(config)
             .then(response => response.data)
             .catch(error => { throw error });
